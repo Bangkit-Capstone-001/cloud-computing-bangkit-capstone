@@ -29,40 +29,6 @@ async function register(request, h) {
   }
 }
 
-// async function login(request, h) {
-//   try {
-//     const { email, password } = request.payload;
-//     const userCredential = await firebase
-//       .auth()
-//       .signInWithEmailAndPassword(email, password);
-//     const user = userCredential.user;
-
-//     return h
-//       .response({
-//         status: "success",
-//         message: "Login success",
-//         data: user,
-//       })
-//       .code(200);
-//   } catch (error) {
-//     if (error.code === "auth/internal-error") {
-//       return h
-//         .response({
-//           status: "fail",
-//           message: "Invalid email or password.",
-//         })
-//         .code(401);
-//     } else {
-//       return h
-//         .response({
-//           status: "fail",
-//           message: "An error occurred during login.",
-//         })
-//         .code(500);
-//     }
-//   }
-// }
-
 async function login(request, h) {
   const { email, password } = request.payload;
   try {

@@ -4,10 +4,10 @@ const {
 } = require("../controller/weightController");
 const { validateFirebaseIdToken } = require("../middleware/authMiddleware");
 
-const registerWeightRoutes = (server) => {
+const registerTrackerRoutes = (server) => {
   server.route([
     {
-      path: "/weight",
+      path: "/api/tracker",
       method: "POST",
       handler: addUserWeight,
       options: {
@@ -15,7 +15,7 @@ const registerWeightRoutes = (server) => {
       },
     },
     {
-      path: "/weight-all",
+      path: "/api/tracker",
       method: "GET",
       handler: getAllUserWeightHistories,
       options: {
@@ -25,4 +25,4 @@ const registerWeightRoutes = (server) => {
   ]);
 };
 
-module.exports = registerWeightRoutes;
+module.exports = registerTrackerRoutes;

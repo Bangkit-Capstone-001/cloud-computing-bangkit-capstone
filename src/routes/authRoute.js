@@ -4,7 +4,7 @@ const { validateFirebaseIdToken } = require("../middleware/authMiddleware");
 const registerAuthRoutes = (server) => {
   server.route([
     {
-      path: "/register",
+      path: "/api/auth/register",
       method: "POST",
       handler: register,
       options: {
@@ -13,14 +13,14 @@ const registerAuthRoutes = (server) => {
     },
     {
       method: "POST",
-      path: "/login",
+      path: "/api/auth/login",
       handler: login,
       options: {
         auth: false,
       },
     },
     {
-      path: "/logout",
+      path: "/api/auth/logout",
       method: "GET",
       options: {
         pre: [{ method: validateFirebaseIdToken }],

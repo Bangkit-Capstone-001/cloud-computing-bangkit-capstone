@@ -2,7 +2,7 @@ const config = require("./config/config");
 const Hapi = require("@hapi/hapi");
 const registerAuthRoutes = require("./routes/authRoute");
 const registerUserRoutes = require("./routes/userRoute");
-const registerWeightRoutes = require("./routes/weightRoute");
+const registerTrackerRoutes = require("./routes/trackerRoute");
 const admin = require("firebase-admin");
 require("./config/firebaseConfig");
 
@@ -19,7 +19,7 @@ require("./config/firebaseConfig");
 
   registerAuthRoutes(server);
   registerUserRoutes(server);
-  registerWeightRoutes(server);
+  registerTrackerRoutes(server);
 
   try {
     await server.start();

@@ -15,8 +15,17 @@ const validateFirebaseIdToken = async (request, h) => {
     request.auth = { uid: decodedToken.uid };
     return h.continue;
   } catch (error) {
-    console.error("Error verifying ID token:", error);
-    return h.response({ message: "Invalid ID token" }).code(401).takeover();
+    if (error.code === "auth/id-token-expired") {
+      return h.response({
+        message: "Your session has expired. Please log in again to continue.",
+      });
+    }
+    return h
+      .response({
+        message: "Invalid ID token",
+      })
+      .code(401)
+      .takeover();
   }
 };
 

@@ -2,15 +2,13 @@ const {
   createUserProfile,
   getUserProfile,
   updateUserProfile,
-  addUserWeight,
-  getAllUserWeightHistories,
 } = require("../controller/userController");
 const { validateFirebaseIdToken } = require("../middleware/authMiddleware");
 
 const registerUserRoutes = (server) => {
   server.route([
     {
-      path: "/user-profile",
+      path: "/api/user-profile",
       method: "POST",
       handler: createUserProfile,
       options: {
@@ -18,7 +16,7 @@ const registerUserRoutes = (server) => {
       },
     },
     {
-      path: "/user-profile",
+      path: "/api/user-profile",
       method: "GET",
       handler: getUserProfile,
       options: {
@@ -26,7 +24,7 @@ const registerUserRoutes = (server) => {
       },
     },
     {
-      path: "/user-profile",
+      path: "/api/user-profile",
       method: "PUT",
       handler: updateUserProfile,
       options: {

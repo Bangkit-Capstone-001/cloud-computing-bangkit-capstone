@@ -1,9 +1,10 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 const {
-  PORT,
+  // PORT,
   HOST,
-  HOST_URL,
+  // HOST_URL,
   API_KEY,
   AUTH_DOMAIN,
   PROJECT_ID,
@@ -23,10 +24,10 @@ const {
   UNIVERSE_DOMAIN,
 } = process.env;
 
-module.exports = {
-  port: PORT,
+const config = {
+  // port: PORT,
   host: HOST,
-  hostUrl: HOST_URL,
+  // hostUrl: HOST_URL,
   firebaseConfig: {
     apiKey: API_KEY,
     authDomain: AUTH_DOMAIN,
@@ -50,3 +51,5 @@ module.exports = {
     universe_domain: UNIVERSE_DOMAIN,
   },
 };
+
+export default config;

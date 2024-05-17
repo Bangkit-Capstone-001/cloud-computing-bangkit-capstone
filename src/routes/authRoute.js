@@ -1,7 +1,7 @@
-const { register, login, logout } = require("../controller/authController");
-const { validateFirebaseIdToken } = require("../middleware/authMiddleware");
+import { register, login, logout } from "../controller/authController.js";
+import { validateFirebaseIdToken } from "../middleware/authMiddleware.js";
 
-const registerAuthRoutes = (server) => {
+export default function registerAuthRoutes(server) {
   server.route([
     {
       path: "/api/auth/register",
@@ -28,6 +28,4 @@ const registerAuthRoutes = (server) => {
       handler: logout,
     },
   ]);
-};
-
-module.exports = registerAuthRoutes;
+}

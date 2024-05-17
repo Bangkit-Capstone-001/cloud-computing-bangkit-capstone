@@ -1,12 +1,16 @@
-const firebase = require("firebase");
-const { db } = require("../config/firebaseConfig");
+import { getAuth } from "firebase/auth";
+import { firebaseApp } from "../config/firebaseConfig.js";
+import { db } from "../config/firebaseConfig.js";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
-async function createUserProfile(request, h) {
+const auth = getAuth(firebaseApp);
+
+export async function createUserProfile(request, h) {
   try {
     const { name, age, gender, currentHeight, currentWeight, goal } =
       request.payload;
 
-    const user = firebase.auth().currentUser;
+    const user = auth.currentUser;
 
     if (!user) {
       return h
@@ -24,8 +28,8 @@ async function createUserProfile(request, h) {
         goal: goal,
       };
 
-      const docRef = db.collection("Users").doc(user.uid);
-      const docSnapshot = await docRef.get();
+      const docRef = doc(db, "Users", user.uid);
+      const docSnapshot = await getDoc(docRef);
 
       if (docSnapshot.exists) {
         return h
@@ -36,7 +40,8 @@ async function createUserProfile(request, h) {
           .code(409);
       }
 
-      await docRef.set(data);
+      await setDoc(docRef, data);
+
       return h
         .response({
           status: "success",
@@ -45,6 +50,7 @@ async function createUserProfile(request, h) {
         .code(200);
     }
   } catch (error) {
+    console.log(error.message);
     return h
       .response({
         message: "An error occurred. Please try again later.",
@@ -53,17 +59,17 @@ async function createUserProfile(request, h) {
   }
 }
 
-async function getUserProfile(request, h) {
+export async function getUserProfile(request, h) {
   try {
-    const user = firebase.auth().currentUser;
+    const user = auth.currentUser;
 
     if (!user) {
       return h
         .response({ message: "You must be logged in to see your profile" })
         .code(401);
     } else {
-      const docRef = db.collection("Users").doc(user.uid);
-      const docSnapshot = await docRef.get();
+      const docRef = doc(db, "Users", user.uid);
+      const docSnapshot = await getDoc(docRef);
 
       if (docSnapshot.exists) {
         const userData = docSnapshot.data();
@@ -78,11 +84,11 @@ async function getUserProfile(request, h) {
   }
 }
 
-async function updateUserProfile(request, h) {
+export async function updateUserProfile(request, h) {
   try {
     const { name, age, gender, currentHeight, goal } = request.payload;
 
-    const user = firebase.auth().currentUser;
+    const user = auth.currentUser;
 
     if (!user) {
       return h
@@ -97,8 +103,8 @@ async function updateUserProfile(request, h) {
       if (currentHeight) updateData.currentHeight = currentHeight;
       if (goal) updateData.goal = goal;
 
-      const docRef = db.collection("Users").doc(user.uid);
-      await docRef.update(updateData);
+      const docRef = doc(db, "Users", user.uid);
+      await updateDoc(docRef, updateData);
 
       return h
         .response({
@@ -116,9 +122,3 @@ async function updateUserProfile(request, h) {
       .code(500);
   }
 }
-
-module.exports = {
-  createUserProfile,
-  getUserProfile,
-  updateUserProfile,
-};

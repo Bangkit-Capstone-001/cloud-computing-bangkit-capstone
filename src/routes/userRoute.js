@@ -1,11 +1,11 @@
-const {
+import {
   createUserProfile,
   getUserProfile,
   updateUserProfile,
-} = require("../controller/userController");
-const { validateFirebaseIdToken } = require("../middleware/authMiddleware");
+} from "../controller/userController.js";
+import { validateFirebaseIdToken } from "../middleware/authMiddleware.js";
 
-const registerUserRoutes = (server) => {
+export default function registerUserRoutes(server) {
   server.route([
     {
       path: "/api/user-profile",
@@ -32,6 +32,4 @@ const registerUserRoutes = (server) => {
       },
     },
   ]);
-};
-
-module.exports = registerUserRoutes;
+}

@@ -1,4 +1,4 @@
-const admin = require("firebase-admin");
+import admin from "firebase-admin";
 
 const validateFirebaseIdToken = async (request, h) => {
   const authorization = request.headers.authorization;
@@ -29,4 +29,4 @@ const validateFirebaseIdToken = async (request, h) => {
   }
 };
 
-module.exports = { validateFirebaseIdToken };
+export { validateFirebaseIdToken };

@@ -1,10 +1,22 @@
-const firebase = require("firebase");
-const { db } = require("../config/firebaseConfig");
+import { getAuth } from "firebase/auth";
+import { firebaseApp } from "../config/firebaseConfig.js";
+import { db } from "../config/firebaseConfig.js";
+import {
+  doc,
+  setDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 
-async function addUserWeight(request, h) {
+const auth = getAuth(firebaseApp);
+
+export async function addUserWeight(request, h) {
   try {
     const { weight, date } = request.payload;
-    const user = firebase.auth().currentUser;
+    const user = auth.currentUser;
 
     if (!user) {
       return h.response({
@@ -15,23 +27,25 @@ async function addUserWeight(request, h) {
         message: "Please provide both weight and date",
       });
     } else {
-      const userRef = db.collection("Users").doc(user.uid);
-      const weightHistoryQuery = userRef
-        .collection("WeightHistories")
-        .where("date", "==", date);
-      const snapshot = await weightHistoryQuery.get();
+      const userRef = doc(db, "Users", user.uid);
+      const weightHistoryRef = collection(userRef, "WeightHistories");
+      const weightHistoryQuery = query(
+        weightHistoryRef,
+        where("date", "==", date)
+      );
+      const snapshot = await getDocs(weightHistoryQuery);
 
       if (!snapshot.empty) {
         const existingDoc = snapshot.docs[0];
-        await existingDoc.ref.update({ weight: weight });
+        await updateDoc(existingDoc.ref, { weight: weight });
       } else {
-        const weightHistoryRef = userRef.collection("WeightHistories");
-        await weightHistoryRef.add({
+        const weightHistoryRef = collection(userRef, "WeightHistories");
+        await setDoc(weightHistoryRef.doc(), {
           date: date,
           weight: weight,
         });
       }
-      await userRef.update({ currentWeight: weight });
+      await updateDoc(userRef, { currentWeight: weight });
       return h
         .response({
           status: "success",
@@ -49,9 +63,10 @@ async function addUserWeight(request, h) {
       .code(500);
   }
 }
-async function getAllUserWeightHistories(request, h) {
+
+export async function getAllUserWeightHistories(request, h) {
   try {
-    const user = firebase.auth().currentUser;
+    const user = auth.currentUser;
 
     if (!user) {
       return h
@@ -60,9 +75,9 @@ async function getAllUserWeightHistories(request, h) {
         })
         .code(401);
     } else {
-      const userRef = db.collection("Users").doc(user.uid);
-      const weightHistoryRef = userRef.collection("WeightHistories");
-      const snapshot = await weightHistoryRef.get();
+      const userRef = doc(db, "Users", user.uid);
+      const weightHistoryRef = collection(userRef, "WeightHistories");
+      const snapshot = await getDocs(weightHistoryRef);
 
       const weightHistoryData = [];
 
@@ -89,8 +104,3 @@ async function getAllUserWeightHistories(request, h) {
       .code(500);
   }
 }
-
-module.exports = {
-  addUserWeight,
-  getAllUserWeightHistories,
-};

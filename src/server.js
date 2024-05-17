@@ -1,10 +1,9 @@
-const config = require("./config/config");
-const Hapi = require("@hapi/hapi");
-const registerAuthRoutes = require("./routes/authRoute");
-const registerUserRoutes = require("./routes/userRoute");
-const registerTrackerRoutes = require("./routes/trackerRoute");
-const admin = require("firebase-admin");
-require("./config/firebaseConfig");
+import Hapi from "@hapi/hapi";
+import registerAuthRoutes from "./routes/authRoute.js";
+import registerUserRoutes from "./routes/userRoute.js";
+import registerTrackerRoutes from "./routes/trackerRoute.js";
+import admin from "firebase-admin";
+import config from "./config/config.js";
 
 (async () => {
   const server = Hapi.server({

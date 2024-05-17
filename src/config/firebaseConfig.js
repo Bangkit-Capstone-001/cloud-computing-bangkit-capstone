@@ -1,12 +1,12 @@
-const firebase = require("firebase");
-const firestore = require("firebase/firestore");
-const config = require("./config");
-const admin = require("firebase-admin");
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import admin from "firebase-admin";
+import config from "./config.js";
 
-const firebaseApp = firebase.initializeApp(config.firebaseConfig);
+const firebaseApp = initializeApp(config.firebaseConfig);
 admin.initializeApp({
   credential: admin.credential.cert(config.firebaseAdminConfig),
 });
 
-const db = firebaseApp.firestore();
-module.exports = { db, firebaseApp };
+const db = getFirestore(firebaseApp);
+export { db, firebaseApp };

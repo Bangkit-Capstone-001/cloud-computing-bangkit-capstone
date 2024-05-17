@@ -1,10 +1,18 @@
-const firebase = require("firebase");
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
+import { firebaseApp } from "../config/firebaseConfig.js";
 
-async function register(request, h) {
+const auth = getAuth(firebaseApp);
+
+export async function register(request, h) {
   try {
     const { email, password } = request.payload;
 
-    await firebase.auth().createUserWithEmailAndPassword(email, password);
+    await createUserWithEmailAndPassword(auth, email, password);
 
     return h
       .response({
@@ -29,12 +37,14 @@ async function register(request, h) {
   }
 }
 
-async function login(request, h) {
+export async function login(request, h) {
   const { email, password } = request.payload;
   try {
-    const userCredential = await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     const user = userCredential.user;
 
     const idToken = await user.getIdToken();
@@ -49,6 +59,7 @@ async function login(request, h) {
         })
         .code(401);
     } else {
+      console.log(error.message);
       return h
         .response({
           status: "fail",
@@ -59,26 +70,15 @@ async function login(request, h) {
   }
 }
 
-async function logout(request, h) {
-  const user = firebase.auth().currentUser;
-
+export async function logout(request, h) {
   try {
-    if (!user) {
-      return h
-        .response({
-          status: "info",
-          message: "No user currently signed in.",
-        })
-        .code(200);
-    } else {
-      firebase.auth().signOut();
-      return h
-        .response({
-          status: "success",
-          message: "Logout success.",
-        })
-        .code(200);
-    }
+    await signOut(auth);
+    return h
+      .response({
+        status: "success",
+        message: "Logout success.",
+      })
+      .code(200);
   } catch (error) {
     console.log(error.message);
     return h
@@ -89,5 +89,3 @@ async function logout(request, h) {
       .code(500);
   }
 }
-
-module.exports = { register, login, logout };

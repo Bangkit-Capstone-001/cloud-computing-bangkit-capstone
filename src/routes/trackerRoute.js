@@ -1,10 +1,10 @@
-const {
+import {
   addUserWeight,
   getAllUserWeightHistories,
-} = require("../controller/weightController");
-const { validateFirebaseIdToken } = require("../middleware/authMiddleware");
+} from "../controller/trackerController.js";
+import { validateFirebaseIdToken } from "../middleware/authMiddleware.js";
 
-const registerTrackerRoutes = (server) => {
+export default function registerTrackerRoutes(server) {
   server.route([
     {
       path: "/api/tracker",
@@ -23,6 +23,4 @@ const registerTrackerRoutes = (server) => {
       },
     },
   ]);
-};
-
-module.exports = registerTrackerRoutes;
+}

@@ -77,10 +77,23 @@ export async function getUserProfile(request, h) {
           status: "success",
           data: userData,
         });
+      } else {
+        return h
+          .response({
+            status: "fail",
+            message: "User profile does not exist",
+          })
+          .code(404);
       }
     }
   } catch (error) {
     console.log(error.message);
+    return h
+      .response({
+        status: "error",
+        message: "An error occurred while retrieving user profile.",
+      })
+      .code(500);
   }
 }
 

@@ -26,7 +26,7 @@ export async function register(request, h) {
         .response({ status: "error", message: "Email already registered!" })
         .code(409);
     } else {
-      console.error("Firebase error:", error);
+      console.log(error.message);
       return h
         .response({
           status: "error",

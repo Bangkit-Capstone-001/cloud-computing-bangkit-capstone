@@ -3,12 +3,13 @@ import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
 import {
   doc,
-  setDoc,
-  updateDoc,
   collection,
   query,
   where,
   getDocs,
+  updateDoc,
+  setDoc,
+  addDoc,
 } from "firebase/firestore";
 
 const auth = getAuth(firebaseApp);
@@ -19,13 +20,17 @@ export async function addUserWeight(request, h) {
     const user = auth.currentUser;
 
     if (!user) {
-      return h.response({
-        message: "You must be logged in to add weight data",
-      });
+      return h
+        .response({
+          message: "You must be logged in to add weight data",
+        })
+        .code(401);
     } else if (!weight || !date) {
-      return h.response({
-        message: "Please provide both weight and date",
-      });
+      return h
+        .response({
+          message: "Please provide both weight and date",
+        })
+        .code(400);
     } else {
       const userRef = doc(db, "Users", user.uid);
       const weightHistoryRef = collection(userRef, "WeightHistories");
@@ -37,12 +42,11 @@ export async function addUserWeight(request, h) {
 
       if (!snapshot.empty) {
         const existingDoc = snapshot.docs[0];
-        await updateDoc(existingDoc.ref, { weight: weight });
+        await updateDoc(existingDoc.ref, { weight });
       } else {
-        const weightHistoryRef = collection(userRef, "WeightHistories");
-        await setDoc(weightHistoryRef.doc(), {
-          date: date,
-          weight: weight,
+        await addDoc(weightHistoryRef, {
+          date,
+          weight,
         });
       }
       await updateDoc(userRef, { currentWeight: weight });

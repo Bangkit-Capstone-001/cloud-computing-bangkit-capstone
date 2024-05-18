@@ -2,9 +2,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const {
-  // PORT,
+  PORT,
   HOST,
-  // HOST_URL,
   API_KEY,
   AUTH_DOMAIN,
   PROJECT_ID,
@@ -25,9 +24,8 @@ const {
 } = process.env;
 
 const config = {
-  // port: PORT,
+  port: PORT,
   host: HOST,
-  // hostUrl: HOST_URL,
   firebaseConfig: {
     apiKey: API_KEY,
     authDomain: AUTH_DOMAIN,

@@ -127,6 +127,7 @@ export async function updateUserProfile(request, h) {
         .code(200);
     }
   } catch (error) {
+    console.log(error.message);
     return h
       .response({
         message:

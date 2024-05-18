@@ -22,12 +22,14 @@ export async function addUserWeight(request, h) {
     if (!user) {
       return h
         .response({
+          status: 401,
           message: "You must be logged in to add weight data",
         })
         .code(401);
     } else if (!weight || !date) {
       return h
         .response({
+          status: 400,
           message: "Please provide both weight and date",
         })
         .code(400);
@@ -52,7 +54,7 @@ export async function addUserWeight(request, h) {
       await updateDoc(userRef, { currentWeight: weight });
       return h
         .response({
-          status: "success",
+          status: 200,
           message: "Weight data added successfully.",
         })
         .code(200);
@@ -61,6 +63,7 @@ export async function addUserWeight(request, h) {
     console.log(error.message);
     return h
       .response({
+        status: 500,
         message:
           "An error occurred while updating your weight. Please try again later.",
       })
@@ -75,6 +78,7 @@ export async function getAllUserWeightHistories(request, h) {
     if (!user) {
       return h
         .response({
+          status: 401,
           message: "You must be logged in to access weight history.",
         })
         .code(401);
@@ -89,19 +93,22 @@ export async function getAllUserWeightHistories(request, h) {
         weightHistoryData.push(doc.data());
       }
 
-      return h.response({
-        status: "success",
-        message:
-          weightHistoryData.length === 0
-            ? "No Weight histories found"
-            : `${weightHistoryData.length} weight histories found for your profile.`,
-        data: weightHistoryData,
-      });
+      return h
+        .response({
+          status: 200,
+          message:
+            weightHistoryData.length === 0
+              ? "No Weight histories found"
+              : `${weightHistoryData.length} weight histories found for your profile.`,
+          data: weightHistoryData,
+        })
+        .code(200);
     }
   } catch (error) {
     console.log(error.message);
     return h
       .response({
+        status: 500,
         message:
           "An error occurred while retrieving weight history. Please try again later.",
       })

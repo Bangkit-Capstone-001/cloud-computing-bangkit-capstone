@@ -32,7 +32,7 @@ export async function createUserProfile(request, h) {
       const docRef = doc(db, "Users", user.uid);
       const docSnapshot = await getDoc(docRef);
 
-      if (docSnapshot.exists) {
+      if (docSnapshot.exists()) {
         return h
           .response({
             status: 409,
@@ -76,7 +76,7 @@ export async function getUserProfile(request, h) {
       const docRef = doc(db, "Users", user.uid);
       const docSnapshot = await getDoc(docRef);
 
-      if (docSnapshot.exists) {
+      if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
         return h
           .response({

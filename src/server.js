@@ -4,7 +4,7 @@ import registerUserRoutes from "./routes/userRoute.js";
 import registerTrackerRoutes from "./routes/trackerRoute.js";
 import admin from "firebase-admin";
 import config from "./config/config.js";
-import registerDietPlanRoutes from "./routes/dietplanRoutes.js";
+import registerDietPlanRoutes from "./routes/dietPlanRoutes.js";
 
 (async () => {
   const server = Hapi.server({

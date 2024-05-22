@@ -1,4 +1,5 @@
 import {
+  calculateBMI,
   createUserProfile,
   getUserProfile,
   updateUserProfile,
@@ -31,5 +32,13 @@ export default function registerUserRoutes(server) {
         pre: [{ method: validateFirebaseIdToken }],
       },
     },
+    {
+      path: "/api/user-profile/bmi",
+      method: "GET",
+      handler: calculateBMI,
+      options: {
+        pre: [{ method: validateFirebaseIdToken }],
+      },
+    }
   ]);
 }

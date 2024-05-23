@@ -7,8 +7,15 @@ const auth = getAuth(firebaseApp);
 
 export async function createUserProfile(request, h) {
   try {
-    const { name, age, gender, currentHeight, currentWeight, goal } =
-      request.payload;
+    const {
+      name,
+      age,
+      gender,
+      currentHeight,
+      currentWeight,
+      goal,
+      activityLevel,
+    } = request.payload;
 
     const user = auth.currentUser;
 
@@ -27,6 +34,7 @@ export async function createUserProfile(request, h) {
         currentHeight: currentHeight,
         currentWeight: currentWeight,
         goal: goal,
+        activityLevel: activityLevel,
       };
 
       const docRef = doc(db, "Users", user.uid);
@@ -106,7 +114,8 @@ export async function getUserProfile(request, h) {
 
 export async function updateUserProfile(request, h) {
   try {
-    const { name, age, gender, currentHeight, goal } = request.payload;
+    const { name, age, gender, currentHeight, goal, activityLevel } =
+      request.payload;
 
     const user = auth.currentUser;
 
@@ -125,6 +134,7 @@ export async function updateUserProfile(request, h) {
       if (gender) updateData.gender = gender;
       if (currentHeight) updateData.currentHeight = currentHeight;
       if (goal) updateData.goal = goal;
+      if (activityLevel) updateData.goal = activityLevel;
 
       const docRef = doc(db, "Users", user.uid);
       await updateDoc(docRef, updateData);

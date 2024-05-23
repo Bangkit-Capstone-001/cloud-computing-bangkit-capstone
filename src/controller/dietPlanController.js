@@ -107,7 +107,8 @@ export async function createDietPlan(request, h) {
       }
       const userData = userSnapshot.data();
 
-      const { currentWeight, currentHeight, age, gender, goal } = userData;
+      const { currentWeight, currentHeight, age, gender, goal, activityLevel } =
+        userData;
       let bmr, calorie;
 
       console.log(currentWeight, currentHeight, age, gender, goal);
@@ -119,7 +120,15 @@ export async function createDietPlan(request, h) {
           655.1 + 9.563 * currentWeight + 1.85 * currentHeight - 4.676 * age;
       }
 
-      //   TODO: Calculate calorie based on activity level
+      if (activityLevel === "sedentary") {
+        bmr *= 1.2;
+      } else if (activityLevel === "light") {
+        bmr *= 1.375;
+      } else if (activityLevel === "moderate") {
+        bmr *= 1.55;
+      } else if (activityLevel === "active") {
+        bmr *= 1.725;
+      }
 
       if (goal === "weightGain") {
         calorie = bmr + (weightTarget * 7000) / duration;
@@ -129,13 +138,16 @@ export async function createDietPlan(request, h) {
         calorie = bmr;
       }
 
+      if (calorie < 1100) {
+        // Kalo kalori kurang dari 1100 dipatok jadi segitu (biar tetep sehat)
+        calorie = 1100;
+      }
+
       createDietPlanService(userRef, {
         weightTarget,
         duration,
         calorie,
       });
-
-      // TODO: Handle kasus kalo kalorie negatif / MATI
 
       return h
         .response({

@@ -1,4 +1,4 @@
-import { getAuth } from "firebase/auth";
+import { getAuth, updateEmail, updatePassword } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
@@ -202,6 +202,54 @@ export async function calculateBMI(request, h) {
       .response({
         status: 500,
         message: "An error occurred while calculating BMI.",
+      })
+      .code(500);
+  }
+}
+
+export async function updateEmailPassUser(request, h) {
+  try {
+    const { email, password } = request.payload;
+
+    getAuth(firebaseApp).updateCurrentUser;
+
+    const user = auth.currentUser;
+
+    if (!email || !password) {
+      return h
+        .response({
+          status: 400,
+          message: "Email and password are required.",
+        })
+        .code(400);
+    }
+
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to update your email and password",
+        })
+        .code(401);
+    } else {
+      await updateEmail(user, email);
+      await updatePassword(user, password);
+
+      return h
+        .response({
+          status: 200,
+          message: "Email and password updated successfully.",
+        })
+        .code(200);
+    }
+  } catch (error) {
+    console.log(error.message);
+    return h
+      .response({
+        status: 500,
+        message:
+          "An error occurred while updating your email and password. Please try again later.",
+        error: error.message,
       })
       .code(500);
   }

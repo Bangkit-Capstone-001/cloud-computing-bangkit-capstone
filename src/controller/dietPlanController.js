@@ -11,8 +11,65 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
+import {
+  createDietPlanService,
+  getDietPlanService,
+} from "../services/dietPlanService.js";
 
 const auth = getAuth(firebaseApp);
+
+export async function getDietPlan(request, h) {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to get a diet plan",
+        })
+        .code(401);
+    }
+
+    const userRef = doc(db, "Users", user.uid);
+    const userSnapshot = await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+      return h
+        .response({
+          status: 404,
+          message: "User profile does not exist",
+        })
+        .code(404);
+    }
+
+    const userDietPlan = await getDietPlanService(userRef);
+    if (!userDietPlan) {
+      return h
+        .response({
+          status: 404,
+          message: "Diet plan not found",
+        })
+        .code(404);
+    }
+
+    return h
+      .response({
+        status: 200,
+        message: "Diet plan retrieved successfully",
+        data: userDietPlan,
+      })
+      .code(200);
+  } catch (error) {
+    console.log(error);
+    return h
+      .response({
+        status: 500,
+        message: "An error occurred. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
 export async function createDietPlan(request, h) {
   try {
     const { weightTarget, duration } = request.payload;
@@ -72,20 +129,11 @@ export async function createDietPlan(request, h) {
         calorie = bmr;
       }
 
-      const dietPlanRef = collection(userRef, "DietPlan");
-      const dietPlanQuery = query(dietPlanRef);
-      const snapshot = await getDocs(dietPlanQuery);
-
-      if (!snapshot.empty) {
-        const existingDoc = snapshot.docs[0];
-        await updateDoc(existingDoc.ref, { weightTarget, duration, calorie });
-      } else {
-        await addDoc(dietPlanRef, {
-          weightTarget,
-          duration,
-          calorie,
-        });
-      }
+      createDietPlanService(userRef, {
+        weightTarget,
+        duration,
+        calorie,
+      });
 
       // TODO: Handle kasus kalo kalorie negatif / MATI
 
@@ -111,5 +159,3 @@ export async function createDietPlan(request, h) {
       .code(500);
   }
 }
-
-export async function getDietPlan(request, h) {}

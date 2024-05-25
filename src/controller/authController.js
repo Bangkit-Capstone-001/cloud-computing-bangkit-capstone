@@ -5,14 +5,28 @@ import {
   signOut,
 } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../config/firebaseConfig.js";
 
 const auth = getAuth(firebaseApp);
 
 export async function register(request, h) {
   try {
-    const { email, password } = request.payload;
+    const { email, password, username } = request.payload;
 
-    await createUserWithEmailAndPassword(auth, email, password);
+    const { user } = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const data = {
+      name: username,
+    };
+
+    const docRef = doc(db, "Users", user.uid);
+
+    await setDoc(docRef, data);
 
     return h
       .response({

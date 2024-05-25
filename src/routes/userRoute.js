@@ -1,6 +1,5 @@
 import {
   calculateBMI,
-  createUserProfile,
   getUserProfile,
   updateEmailPassUser,
   updateUserProfile,
@@ -9,14 +8,6 @@ import { validateFirebaseIdToken } from "../middleware/authMiddleware.js";
 
 export default function registerUserRoutes(server) {
   server.route([
-    {
-      path: "/api/user-profile",
-      method: "POST",
-      handler: createUserProfile,
-      options: {
-        pre: [{ method: validateFirebaseIdToken }],
-      },
-    },
     {
       path: "/api/user-profile",
       method: "GET",
@@ -48,6 +39,6 @@ export default function registerUserRoutes(server) {
       options: {
         pre: [{ method: validateFirebaseIdToken }],
       },
-    }
+    },
   ]);
 }

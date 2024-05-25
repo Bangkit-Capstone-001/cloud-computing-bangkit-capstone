@@ -69,11 +69,12 @@ export async function login(request, h) {
     return h
       .response({
         status: 200,
+        message: "Login successful",
         idToken,
       })
       .code(200);
   } catch (error) {
-    if (error.code === "auth/invalid-login-credentials") {
+    if (error.code === "auth/user-not-found") {
       return h
         .response({
           status: 401,

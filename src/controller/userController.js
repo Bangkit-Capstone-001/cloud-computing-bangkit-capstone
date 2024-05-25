@@ -25,6 +25,7 @@ export async function getUserProfile(request, h) {
         return h
           .response({
             status: 200,
+            message: "User profile retrieved successfully",
             data: userData,
           })
           .code(200);

@@ -12,7 +12,7 @@ const auth = getAuth(firebaseApp);
 
 export async function register(request, h) {
   try {
-    const { email, password, username } = request.payload;
+    const { email, password, name } = request.payload;
 
     const { user } = await createUserWithEmailAndPassword(
       auth,
@@ -21,7 +21,7 @@ export async function register(request, h) {
     );
 
     const data = {
-      name: username,
+      name: name,
     };
 
     const docRef = doc(db, "Users", user.uid);

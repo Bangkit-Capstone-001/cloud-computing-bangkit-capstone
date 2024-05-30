@@ -28,7 +28,7 @@ async function fetchWorkoutsByGroupAndOption(bodyGroup, option) {
   return workouts;
 }
 
-async function getFullBodyWorkout(numOfWorkout, option, h) {
+async function getFullBodyWorkout(option, h) {
   const upperTarget = "Upper";
   const lowerTarget = "Lower";
 
@@ -46,17 +46,10 @@ async function getFullBodyWorkout(numOfWorkout, option, h) {
       .code(404);
   }
 
-  const selectedUpperWorkouts = upperWorkouts
-    .sort(() => 0.5 - Math.random())
-    .slice(0, Math.floor(numOfWorkout / 2));
-  const selectedLowerWorkouts = lowerWorkouts
-    .sort(() => 0.5 - Math.random())
-    .slice(0, Math.floor(numOfWorkout / 2));
-
-  return [...selectedUpperWorkouts, ...selectedLowerWorkouts];
+  return [upperWorkouts, lowerWorkouts];
 }
 
-async function getUpperOrLowerBodyWorkout(numOfWorkout, target, option, h) {
+async function getUpperOrLowerBodyWorkout(target, option, h) {
   const workouts = await fetchWorkoutsByGroupAndOption(target, option);
 
   if (workouts.length === 0) {
@@ -68,7 +61,7 @@ async function getUpperOrLowerBodyWorkout(numOfWorkout, target, option, h) {
       .code(404);
   }
 
-  return workouts.sort(() => 0.5 - Math.random()).slice(0, numOfWorkout);
+  return workouts;
 }
 
 export async function getRandomWorkout(request, h) {
@@ -104,14 +97,24 @@ export async function getRandomWorkout(request, h) {
       let selectedWorkouts;
 
       if (target == "Full") {
-        selectedWorkouts = await getFullBodyWorkout(numOfWorkout, option, h);
-      } else {
-        selectedWorkouts = await getUpperOrLowerBodyWorkout(
-          numOfWorkout,
-          target,
+        const [upperWorkouts, lowerWorkouts] = await getFullBodyWorkout(
           option,
           h
         );
+
+        const selectedUpperWorkouts = upperWorkouts
+          .sort(() => 0.5 - Math.random())
+          .slice(0, Math.floor(numOfWorkout / 2));
+        const selectedLowerWorkouts = lowerWorkouts
+          .sort(() => 0.5 - Math.random())
+          .slice(0, Math.floor(numOfWorkout / 2));
+
+        selectedWorkouts = [...selectedUpperWorkouts, ...selectedLowerWorkouts];
+      } else {
+        const workout = await getUpperOrLowerBodyWorkout(target, option, h);
+        selectedWorkouts = workout
+          .sort(() => 0.5 - Math.random())
+          .slice(0, numOfWorkout);
       }
 
       return h
@@ -129,6 +132,52 @@ export async function getRandomWorkout(request, h) {
         status: 500,
         message:
           "An error occurred while retrieving a number of random workout. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
+export async function getAllWorkoutByTargetAndOption(request, h) {
+  try {
+    const user = auth.currentUser;
+
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to retrieve workouts.",
+        })
+        .code(401);
+    } else {
+      const { target, option } = request.query;
+
+      let selectedWorkouts;
+
+      if (target == "Full") {
+        const [upperWorkouts, lowerWorkouts] = await getFullBodyWorkout(
+          option,
+          h
+        );
+
+        selectedWorkouts = [...upperWorkouts, ...lowerWorkouts];
+      } else {
+        selectedWorkouts = await getUpperOrLowerBodyWorkout(target, option, h);
+      }
+
+      return h
+        .response({
+          status: 200,
+          message: `Retrieved ${selectedWorkouts.length} ${target} Body workouts with option ${option}`,
+          data: selectedWorkouts,
+        })
+        .code(200);
+    }
+  } catch (error) {
+    console.log(error.message);
+    return h
+      .response({
+        status: 500,
+        message: `An error occurred while retrieving ${target} Body workouts with option ${option} workouts. Please try again later.`,
       })
       .code(500);
   }

@@ -177,7 +177,7 @@ export async function getAllWorkoutByTargetAndOption(request, h) {
     return h
       .response({
         status: 500,
-        message: `An error occurred while retrieving ${target} Body workouts with option ${option} workouts. Please try again later.`,
+        message: `An error occurred while retrieving ${target} Body workouts with option ${option}. Please try again later.`,
       })
       .code(500);
   }

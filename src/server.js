@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import registerAuthRoutes from "./routes/authRoute.js";
 import registerUserRoutes from "./routes/userRoute.js";
 import registerTrackerRoutes from "./routes/trackerRoute.js";
+import registerWorkoutRoutes from "./routes/workoutRoute.js";
 import admin from "firebase-admin";
 import config from "./config/config.js";
 import registerDietPlanRoutes from "./routes/dietPlanRoutes.js";
@@ -21,6 +22,7 @@ import registerDietPlanRoutes from "./routes/dietPlanRoutes.js";
   registerUserRoutes(server);
   registerTrackerRoutes(server);
   registerDietPlanRoutes(server);
+  registerWorkoutRoutes(server);
 
   try {
     await server.start();

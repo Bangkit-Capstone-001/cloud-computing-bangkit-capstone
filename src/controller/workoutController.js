@@ -79,7 +79,7 @@ export async function getRandomWorkout(request, h) {
       return h
         .response({
           status: 401,
-          message: "You must be logged in to get random workouts.",
+          message: "You must be logged in to retrieve random workouts.",
         })
         .code(401);
     } else {
@@ -117,7 +117,7 @@ export async function getRandomWorkout(request, h) {
       return h
         .response({
           status: 200,
-          message: `Retrieved random ${selectedWorkouts.length} of ${target} Body and ${option}`,
+          message: `Retrieved ${selectedWorkouts.length} random ${target} Body workouts with option ${option}`,
           data: selectedWorkouts,
         })
         .code(200);

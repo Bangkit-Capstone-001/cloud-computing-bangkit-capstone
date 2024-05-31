@@ -5,14 +5,28 @@ import {
   signOut,
 } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../config/firebaseConfig.js";
 
 const auth = getAuth(firebaseApp);
 
 export async function register(request, h) {
   try {
-    const { email, password } = request.payload;
+    const { email, password, name } = request.payload;
 
-    await createUserWithEmailAndPassword(auth, email, password);
+    const { user } = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const data = {
+      name: name,
+    };
+
+    const docRef = doc(db, "Users", user.uid);
+
+    await setDoc(docRef, data);
 
     return h
       .response({
@@ -55,11 +69,12 @@ export async function login(request, h) {
     return h
       .response({
         status: 200,
+        message: "Login successful",
         idToken,
       })
       .code(200);
   } catch (error) {
-    if (error.code === "auth/invalid-login-credentials") {
+    if (error.code === "auth/user-not-found") {
       return h
         .response({
           status: 401,

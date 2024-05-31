@@ -17,7 +17,7 @@ const auth = getAuth(firebaseApp);
 async function fetchWorkoutsByGroupAndOption(bodyGroup, option) {
   const workoutsQuery = query(
     collection(db, "Workouts"),
-    where("bodyGroup", "==", bodyGroup),
+    where("body_group", "==", bodyGroup),
     where("option", "==", option)
   );
   const workoutsSnapshot = await getDocs(workoutsQuery);

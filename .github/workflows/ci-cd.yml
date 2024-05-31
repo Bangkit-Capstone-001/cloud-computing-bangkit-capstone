@@ -22,8 +22,8 @@ jobs:
 
       - name: Authenticate Docker to Google Container Registry
         run: |
-          gcloud auth login
           gcloud auth configure-docker asia-southeast2-docker.pkg.dev
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://asia-southeast2-docker.pkg.dev
 
       - name: Build and push Docker image
         run: |

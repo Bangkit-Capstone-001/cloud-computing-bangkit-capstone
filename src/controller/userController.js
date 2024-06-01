@@ -51,8 +51,15 @@ export async function getUserProfile(request, h) {
 
 export async function updateUserProfile(request, h) {
   try {
-    const { name, age, gender, currentHeight, goal, activityLevel } =
-      request.payload;
+    const {
+      name,
+      age,
+      gender,
+      currentHeight,
+      // currentWeight,
+      goal,
+      activityLevel,
+    } = request.payload;
 
     const user = auth.currentUser;
 
@@ -68,10 +75,52 @@ export async function updateUserProfile(request, h) {
 
       if (name) updateData.name = name;
       if (age) updateData.age = age;
-      if (gender) updateData.gender = gender;
       if (currentHeight) updateData.currentHeight = currentHeight;
-      if (goal) updateData.goal = goal;
-      if (activityLevel) updateData.goal = activityLevel;
+      // if (currentWeight) updateData.currentWeight = currentWeight;
+      if (gender) {
+        if (gender !== "Male" || gender !== "Female") {
+          return h
+            .response({
+              status: 400,
+              message: "Gender can only be Male or Female!",
+            })
+            .code(400);
+        }
+        updateData.gender = gender;
+      }
+      if (goal) {
+        if (
+          goal !== "weightLoss" ||
+          goal !== "weightMaintain" ||
+          goal !== "weightGain"
+        ) {
+          return h
+            .response({
+              status: 400,
+              message:
+                "Goal can only be weightLoss, weightMaintain or weightGain!",
+            })
+            .code(400);
+        }
+        updateData.goal = goal;
+      }
+      if (activityLevel) {
+        if (
+          activityLevel !== "sedentary" ||
+          activityLevel !== "light" ||
+          activityLevel !== "moderate" ||
+          activityLevel !== "active"
+        ) {
+          return h
+            .response({
+              status: 400,
+              message:
+                "Activity level can only be sedentary, light, moderate or active!",
+            })
+            .code(400);
+        }
+        updateData.activityLevel = activityLevel;
+      }
 
       const docRef = doc(db, "Users", user.uid);
       await updateDoc(docRef, updateData);

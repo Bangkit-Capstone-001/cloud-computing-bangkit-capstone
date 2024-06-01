@@ -2,6 +2,7 @@ import { db } from "../config/firebaseConfig.js";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -83,6 +84,40 @@ export async function getUserWorkoutPlanByIdService(userRef, workoutPlanId) {
 
     console.log(resolvedWorkoutPlan); // To verify the data
     return resolvedWorkoutPlan;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateUserWorkoutPlanService(
+  userRef,
+  workoutPlanId,
+  data
+) {
+  try {
+    const workoutPlanDocRef = doc(userRef, "WorkoutPlan", workoutPlanId);
+    const workoutPlanDocSnapshot = await getDoc(workoutPlanDocRef);
+
+    if (!workoutPlanDocSnapshot.exists()) {
+      throw new Error("Workout plan does not exist");
+    }
+    await updateDoc(workoutPlanDocRef, data);
+    return true;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function deleteUserWorkoutPlanService(userRef, workoutPlanId) {
+  try {
+    const workoutPlanDocRef = doc(userRef, "WorkoutPlan", workoutPlanId);
+    const workoutPlanDocSnapshot = await getDoc(workoutPlanDocRef);
+
+    if (!workoutPlanDocSnapshot.exists()) {
+      throw new Error("Workout plan does not exist");
+    }
+    await deleteDoc(workoutPlanDocRef);
+    return true;
   } catch (error) {
     throw error;
   }

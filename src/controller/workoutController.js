@@ -14,8 +14,10 @@ import {
 } from "firebase/firestore";
 import {
   createWorkoutPlanService,
+  deleteUserWorkoutPlanService,
   getAllUserWorkoutPlanService,
   getUserWorkoutPlanByIdService,
+  updateUserWorkoutPlanService,
 } from "../services/workoutPlanService.js";
 
 const auth = getAuth(firebaseApp);
@@ -324,6 +326,110 @@ export async function getUserWorkoutPlanById(request, h) {
         status: 500,
         message:
           "An error occurred while retrieving the workout plan. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
+export async function updateUserWorkoutPlan(request, h) {
+  try {
+    const user = auth.currentUser;
+
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to create a workout plan.",
+        })
+        .code(401);
+    } else {
+      const userRef = doc(db, "Users", user.uid);
+      const userSnapshot = await getDoc(userRef);
+
+      if (!userSnapshot.exists()) {
+        return h
+          .response({
+            status: 404,
+            message: "User profile does not exist",
+          })
+          .code(404);
+      }
+      const { workoutIds, days } = request.payload;
+      const { planId } = request.params;
+
+      const updateData = {};
+
+      if (workoutIds) {
+        updateData.workouts = workoutIds.map((id) => doc(db, "Workouts", id));
+      }
+      if (days) {
+        updateData.days = days;
+      }
+
+      await updateUserWorkoutPlanService(userRef, planId, updateData);
+
+      console.log("planId", planId);
+      return h
+        .response({
+          status: 200,
+          message: "Workout plan updated successfully",
+          data: await getUserWorkoutPlanByIdService(userRef, planId),
+        })
+        .code(200);
+    }
+  } catch (error) {
+    console.log(error);
+    return h
+      .response({
+        status: 500,
+        message:
+          "An error occurred while updating a workout plan. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
+export async function deleteUserWorkoutPlan(request, h) {
+  try {
+    const user = auth.currentUser;
+
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to delete a workout plan.",
+        })
+        .code(401);
+    } else {
+      const userRef = doc(db, "Users", user.uid);
+      const userSnapshot = await getDoc(userRef);
+
+      if (!userSnapshot.exists()) {
+        return h
+          .response({
+            status: 404,
+            message: "User profile does not exist",
+          })
+          .code(404);
+      }
+      const { planId } = request.params;
+
+      await deleteUserWorkoutPlanService(userRef, planId);
+
+      return h
+        .response({
+          status: 200,
+          message: "Workout plan deleted successfully",
+        })
+        .code(200);
+    }
+  } catch (error) {
+    console.log(error);
+    return h
+      .response({
+        status: 500,
+        message:
+          "An error occurred while deleting a workout plan. Please try again later.",
       })
       .code(500);
   }

@@ -5,6 +5,8 @@ import {
   createWorkoutPlan,
   getAllUserWorkoutPlan,
   getUserWorkoutPlanById,
+  updateUserWorkoutPlan,
+  deleteUserWorkoutPlan,
 } from "../controller/workoutController.js";
 
 export default function registerWorkoutRoutes(server) {
@@ -49,5 +51,21 @@ export default function registerWorkoutRoutes(server) {
         pre: [{ method: validateFirebaseIdToken }],
       },
     },
+    {
+      path: "/api/workout/plan/{planId}",
+      method: "PUT",
+      handler: updateUserWorkoutPlan,
+      options: {
+        pre: [{ method: validateFirebaseIdToken }],
+      },
+    },
+    {
+      path: "/api/workout/plan/{planId}",
+      method: "DELETE",
+      handler: deleteUserWorkoutPlan,
+      options: {
+        pre: [{ method: validateFirebaseIdToken }],
+      },
+    }
   ]);
 }

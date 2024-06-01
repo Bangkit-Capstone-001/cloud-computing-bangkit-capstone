@@ -8,6 +8,7 @@ import {
   getDocs,
   query,
   setDoc,
+  where,
   updateDoc,
 } from "firebase/firestore";
 
@@ -121,4 +122,18 @@ export async function deleteUserWorkoutPlanService(userRef, workoutPlanId) {
   } catch (error) {
     throw error;
   }
+}
+
+export async function fetchWorkoutsByGroupAndOptionService(bodyGroup, option) {
+  const workoutsQuery = query(
+    collection(db, "Workouts"),
+    where("body_group", "==", bodyGroup),
+    where("option", "==", option)
+  );
+  const workoutsSnapshot = await getDocs(workoutsQuery);
+  const workouts = [];
+  workoutsSnapshot.forEach((doc) => {
+    workouts.push({ id: doc.id, ...doc.data() });
+  });
+  return workouts;
 }

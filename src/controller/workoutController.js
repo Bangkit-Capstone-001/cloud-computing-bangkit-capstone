@@ -18,31 +18,18 @@ import {
   getAllUserWorkoutPlanService,
   getUserWorkoutPlanByIdService,
   updateUserWorkoutPlanService,
+  fetchWorkoutsByGroupAndOptionService,
 } from "../services/workoutPlanService.js";
 
 const auth = getAuth(firebaseApp);
-
-async function fetchWorkoutsByGroupAndOption(bodyGroup, option) {
-  const workoutsQuery = query(
-    collection(db, "Workouts"),
-    where("body_group", "==", bodyGroup),
-    where("option", "==", option)
-  );
-  const workoutsSnapshot = await getDocs(workoutsQuery);
-  const workouts = [];
-  workoutsSnapshot.forEach((doc) => {
-    workouts.push({ id: doc.id, ...doc.data() });
-  });
-  return workouts;
-}
 
 async function getFullBodyWorkout(option, h) {
   const upperTarget = "Upper";
   const lowerTarget = "Lower";
 
   const [upperWorkouts, lowerWorkouts] = await Promise.all([
-    fetchWorkoutsByGroupAndOption(upperTarget, option),
-    fetchWorkoutsByGroupAndOption(lowerTarget, option),
+    fetchWorkoutsByGroupAndOptionService(upperTarget, option),
+    fetchWorkoutsByGroupAndOptionService(lowerTarget, option),
   ]);
 
   if (upperWorkouts.length === 0 || lowerWorkouts.length === 0) {
@@ -58,7 +45,7 @@ async function getFullBodyWorkout(option, h) {
 }
 
 async function getUpperOrLowerBodyWorkout(target, option, h) {
-  const workouts = await fetchWorkoutsByGroupAndOption(target, option);
+  const workouts = await fetchWorkoutsByGroupAndOptionService(target, option);
 
   if (workouts.length === 0) {
     return h

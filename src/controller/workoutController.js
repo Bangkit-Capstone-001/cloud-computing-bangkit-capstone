@@ -23,7 +23,7 @@ async function fetchWorkoutsByGroupAndOption(bodyGroup, option) {
   const workoutsSnapshot = await getDocs(workoutsQuery);
   const workouts = [];
   workoutsSnapshot.forEach((doc) => {
-    workouts.push(doc.data());
+    workouts.push({ id: doc.id, ...doc.data() });
   });
   return workouts;
 }

@@ -12,12 +12,18 @@ import {
   addDoc,
 } from "firebase/firestore";
 
+import {
+  addUserWeightService,
+  getAllUserWeightHistoriesService,
+} from "../services/trackerService.js";
+
 const auth = getAuth(firebaseApp);
 
 export async function addUserWeight(request, h) {
   try {
     const { weight, date } = request.payload;
     const user = auth.currentUser;
+    const today = new Date();
 
     if (!user) {
       return h
@@ -33,25 +39,17 @@ export async function addUserWeight(request, h) {
           message: "Please provide both weight and date",
         })
         .code(400);
+    } else if (new Date(date) > today) {
+      return h
+        .response({
+          status: 400,
+          message: "The date cannot be in the future",
+        })
+        .code(400);
     } else {
       const userRef = doc(db, "Users", user.uid);
-      const weightHistoryRef = collection(userRef, "WeightHistories");
-      const weightHistoryQuery = query(
-        weightHistoryRef,
-        where("date", "==", date)
-      );
-      const snapshot = await getDocs(weightHistoryQuery);
+      await addUserWeightService(userRef, weight, date, today);
 
-      if (!snapshot.empty) {
-        const existingDoc = snapshot.docs[0];
-        await updateDoc(existingDoc.ref, { weight });
-      } else {
-        await addDoc(weightHistoryRef, {
-          date,
-          weight,
-        });
-      }
-      await updateDoc(userRef, { currentWeight: weight });
       return h
         .response({
           status: 200,
@@ -84,14 +82,7 @@ export async function getAllUserWeightHistories(request, h) {
         .code(401);
     } else {
       const userRef = doc(db, "Users", user.uid);
-      const weightHistoryRef = collection(userRef, "WeightHistories");
-      const snapshot = await getDocs(weightHistoryRef);
-
-      const weightHistoryData = [];
-
-      for (const doc of snapshot.docs) {
-        weightHistoryData.push(doc.data());
-      }
+      const weightHistoryData = await getAllUserWeightHistoriesService(userRef);
 
       return h
         .response({

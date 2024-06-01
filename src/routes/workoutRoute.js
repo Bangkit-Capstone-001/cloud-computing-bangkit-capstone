@@ -2,6 +2,9 @@ import { validateFirebaseIdToken } from "../middleware/authMiddleware.js";
 import {
   getRandomWorkout,
   getAllWorkoutByTargetAndOption,
+  createWorkoutPlan,
+  getAllUserWorkoutPlan,
+  getUserWorkoutPlanById,
 } from "../controller/workoutController.js";
 
 export default function registerWorkoutRoutes(server) {
@@ -18,6 +21,30 @@ export default function registerWorkoutRoutes(server) {
       path: "/api/workout",
       method: "GET",
       handler: getAllWorkoutByTargetAndOption,
+      options: {
+        pre: [{ method: validateFirebaseIdToken }],
+      },
+    },
+    {
+      path: "/api/workout/plan",
+      method: "POST",
+      handler: createWorkoutPlan,
+      options: {
+        pre: [{ method: validateFirebaseIdToken }],
+      },
+    },
+    {
+      path: "/api/workout/plan",
+      method: "GET",
+      handler: getAllUserWorkoutPlan,
+      options: {
+        pre: [{ method: validateFirebaseIdToken }],
+      },
+    },
+    {
+      path: "/api/workout/plan/{planId}",
+      method: "GET",
+      handler: getUserWorkoutPlanById,
       options: {
         pre: [{ method: validateFirebaseIdToken }],
       },

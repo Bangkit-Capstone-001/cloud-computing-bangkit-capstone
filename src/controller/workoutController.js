@@ -10,7 +10,13 @@ import {
   updateDoc,
   setDoc,
   addDoc,
+  getDoc,
 } from "firebase/firestore";
+import {
+  createWorkoutPlanService,
+  getAllUserWorkoutPlanService,
+  getUserWorkoutPlanByIdService,
+} from "../services/workoutPlanService.js";
 
 const auth = getAuth(firebaseApp);
 
@@ -178,6 +184,146 @@ export async function getAllWorkoutByTargetAndOption(request, h) {
       .response({
         status: 500,
         message: `An error occurred while retrieving ${target} Body workouts with option ${option}. Please try again later.`,
+      })
+      .code(500);
+  }
+}
+
+export async function createWorkoutPlan(request, h) {
+  try {
+    const user = auth.currentUser;
+
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to create a workout plan.",
+        })
+        .code(401);
+    } else {
+      const userRef = doc(db, "Users", user.uid);
+      const userSnapshot = await getDoc(userRef);
+
+      if (!userSnapshot.exists()) {
+        return h
+          .response({
+            status: 404,
+            message: "User profile does not exist",
+          })
+          .code(404);
+      }
+      const { workoutIds, days } = request.payload;
+
+      if (!workoutIds || !days) {
+        return h
+          .response({
+            status: 400,
+            message: "Workout IDs and days are required",
+          })
+          .code(400);
+      }
+
+      const workouts = workoutIds.map((id) => doc(db, "Workouts", id));
+      const workoutPlanRef = await createWorkoutPlanService(userRef, {
+        days,
+        workouts,
+      });
+
+      return h
+        .response({
+          status: 201,
+          message: "Workout plan created successfully",
+          data: await getUserWorkoutPlanById(userRef, workoutPlanRef.id),
+        })
+        .code(201);
+    }
+  } catch (error) {
+    console.log(error.message);
+    return h
+      .response({
+        status: 500,
+        message:
+          "An error occurred while creating a workout plan. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
+export async function getAllUserWorkoutPlan(request, h) {
+  try {
+    const user = auth.currentUser;
+
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to retrieve workout plans.",
+        })
+        .code(401);
+    } else {
+      const userRef = doc(db, "Users", user.uid);
+      const workoutPlans = await getAllUserWorkoutPlanService(userRef);
+
+      return h
+        .response({
+          status: 200,
+          message: "Retrieved all workout plans",
+          data: workoutPlans,
+        })
+        .code(200);
+    }
+  } catch (error) {
+    console.log(error.message);
+    return h
+      .response({
+        status: 500,
+        message:
+          "An error occurred while retrieving workout plans. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
+export async function getUserWorkoutPlanById(request, h) {
+  try {
+    const user = auth.currentUser;
+
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to retrieve workout plans.",
+        })
+        .code(401);
+    } else {
+      const userRef = doc(db, "Users", user.uid);
+      const { planId } = request.params;
+
+      const workoutPlan = await getUserWorkoutPlanByIdService(userRef, planId);
+
+      return h
+        .response({
+          status: 200,
+          message: "Retrieved workout plan",
+          data: workoutPlan,
+        })
+        .code(200);
+    }
+  } catch (error) {
+    console.log(error.message);
+    if (error.message === "Workout plan does not exist") {
+      return h
+        .response({
+          status: 404,
+          message: "Workout plan not found",
+        })
+        .code(404);
+    }
+    return h
+      .response({
+        status: 500,
+        message:
+          "An error occurred while retrieving the workout plan. Please try again later.",
       })
       .code(500);
   }

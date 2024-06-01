@@ -51,7 +51,7 @@ export async function addUserWeight(request, h) {
           weight,
         });
       }
-      await updateDoc(userRef, { currentWeight: weight });
+
       return h
         .response({
           status: 200,

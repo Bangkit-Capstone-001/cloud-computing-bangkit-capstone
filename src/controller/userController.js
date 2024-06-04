@@ -118,7 +118,7 @@ export async function updateUserProfile(request, h) {
         const docSnapshot = await getDoc(docRef);
         const userData = docSnapshot.data();
 
-        const { bmi, bmiCategory } = await bmiCalculator(
+        const { bmi } = await bmiCalculator(
           userData.currentHeight,
           userData.currentWeight
         );
@@ -164,20 +164,28 @@ export async function calculateBMI(request, h) {
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
 
-        if (userData.currentWeight === undefined) {
+        if (userData.bmi === undefined) {
           return h
             .response({
               status: 400,
               message:
-                "Your current weight data is missing. Please input your weight to proceed.",
+                "Your bmi data is missing. Please input your weight to proceed.",
             })
             .code(400);
         }
 
-        const { bmi, bmiCategory } = await bmiCalculator(
-          userData.currentHeight,
-          userData.currentWeight
-        );
+        const bmi = userData.bmi;
+
+        let bmiCategory = "";
+        if (bmi < 18.5) {
+          bmiCategory = "Underweight";
+        } else if (bmi >= 18.5 && bmi < 24.9) {
+          bmiCategory = "Normal weight";
+        } else if (bmi >= 25 && bmi < 29.9) {
+          bmiCategory = "Overweight";
+        } else if (bmi >= 30) {
+          bmiCategory = "Obese";
+        }
 
         return h
           .response({
@@ -262,15 +270,5 @@ async function bmiCalculator(currentHeight, currentWeight) {
 
   const roundedBmi = Math.round(bmi * 100) / 100;
 
-  let bmiCategory = "";
-  if (roundedBmi < 18.5) {
-    bmiCategory = "Underweight";
-  } else if (roundedBmi >= 18.5 && roundedBmi < 24.9) {
-    bmiCategory = "Normal weight";
-  } else if (roundedBmi >= 25 && roundedBmi < 29.9) {
-    bmiCategory = "Overweight";
-  } else if (roundedBmi >= 30) {
-    bmiCategory = "Obese";
-  }
-  return { bmi: roundedBmi, bmiCategory };
+  return { bmi: roundedBmi };
 }

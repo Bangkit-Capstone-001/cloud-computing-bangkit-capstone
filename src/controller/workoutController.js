@@ -201,7 +201,7 @@ export async function createWorkoutPlan(request, h) {
           })
           .code(404);
       }
-      const { workoutIds, days } = request.payload;
+      const { workoutIds, days, level, target, option } = request.payload;
 
       if (!workoutIds || !days) {
         return h
@@ -212,8 +212,21 @@ export async function createWorkoutPlan(request, h) {
           .code(400);
       }
 
+      if (!level || !target || !option) {
+        return h
+          .response({
+            status: 400,
+            message:
+              "Workout level, muscle target, and exercise option are required",
+          })
+          .code(400);
+      }
+
       const workouts = workoutIds.map((id) => doc(db, "Workouts", id));
       const workoutPlanRef = await createWorkoutPlanService(userRef, {
+        level,
+        target,
+        option,
         days,
         workouts,
       });
@@ -222,7 +235,7 @@ export async function createWorkoutPlan(request, h) {
         .response({
           status: 201,
           message: "Workout plan created successfully",
-          data: await getUserWorkoutPlanById(userRef, workoutPlanRef.id),
+          data: await getUserWorkoutPlanByIdService(userRef, workoutPlanRef.id),
         })
         .code(201);
     }
@@ -355,7 +368,6 @@ export async function updateUserWorkoutPlan(request, h) {
 
       await updateUserWorkoutPlanService(userRef, planId, updateData);
 
-      console.log("planId", planId);
       return h
         .response({
           status: 200,

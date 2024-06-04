@@ -51,15 +51,8 @@ export async function getUserProfile(request, h) {
 
 export async function updateUserProfile(request, h) {
   try {
-    const {
-      name,
-      age,
-      gender,
-      currentHeight,
-      // currentWeight,
-      goal,
-      activityLevel,
-    } = request.payload;
+    const { name, age, gender, currentHeight, goal, activityLevel } =
+      request.payload;
 
     const user = auth.currentUser;
 
@@ -76,9 +69,9 @@ export async function updateUserProfile(request, h) {
       if (name) updateData.name = name;
       if (age) updateData.age = age;
       if (currentHeight) updateData.currentHeight = currentHeight;
-      // if (currentWeight) updateData.currentWeight = currentWeight;
       if (gender) {
-        if (gender !== "Male" || gender !== "Female") {
+        const validGenders = ["Male", "Female"];
+        if (!validGenders.includes(gender)) {
           return h
             .response({
               status: 400,
@@ -89,11 +82,8 @@ export async function updateUserProfile(request, h) {
         updateData.gender = gender;
       }
       if (goal) {
-        if (
-          goal !== "weightLoss" ||
-          goal !== "weightMaintain" ||
-          goal !== "weightGain"
-        ) {
+        const validGoals = ["weightLoss", "weightMaintain", "weightGain"];
+        if (!validGoals.includes(goal)) {
           return h
             .response({
               status: 400,
@@ -105,12 +95,13 @@ export async function updateUserProfile(request, h) {
         updateData.goal = goal;
       }
       if (activityLevel) {
-        if (
-          activityLevel !== "sedentary" ||
-          activityLevel !== "light" ||
-          activityLevel !== "moderate" ||
-          activityLevel !== "active"
-        ) {
+        const validActivityLevels = [
+          "sedentary",
+          "light",
+          "moderate",
+          "active",
+        ];
+        if (!validActivityLevels.includes(activityLevel)) {
           return h
             .response({
               status: 400,
@@ -122,6 +113,17 @@ export async function updateUserProfile(request, h) {
         updateData.activityLevel = activityLevel;
       }
 
+      if (currentHeight || currentWeight) {
+        const docRef = doc(db, "Users", user.uid);
+        const docSnapshot = await getDoc(docRef);
+        const userData = docSnapshot.data();
+
+        const { bmi, bmiCategory } = await bmiCalculator(
+          userData.currentHeight,
+          userData.currentWeight
+        );
+        updateData.bmi = bmi;
+      }
       const docRef = doc(db, "Users", user.uid);
       await updateDoc(docRef, updateData);
 
@@ -161,18 +163,21 @@ export async function calculateBMI(request, h) {
 
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
-        const heightInMeters = userData.currentHeight / 100;
-        const bmi = userData.currentWeight / (heightInMeters * heightInMeters);
-        let bmiCategory = "";
-        if (bmi < 18.5) {
-          bmiCategory = "Underweight";
-        } else if (bmi >= 18.5 && bmi < 24.9) {
-          bmiCategory = "Normal weight";
-        } else if (bmi >= 25 && bmi < 29.9) {
-          bmiCategory = "Overweight";
-        } else if (bmi >= 30) {
-          bmiCategory = "Obese";
+
+        if (userData.currentWeight === undefined) {
+          return h
+            .response({
+              status: 400,
+              message:
+                "Your current weight data is missing. Please input your weight to proceed.",
+            })
+            .code(400);
         }
+
+        const { bmi, bmiCategory } = await bmiCalculator(
+          userData.currentHeight,
+          userData.currentWeight
+        );
 
         return h
           .response({
@@ -249,4 +254,23 @@ export async function updateEmailPassUser(request, h) {
       })
       .code(500);
   }
+}
+
+async function bmiCalculator(currentHeight, currentWeight) {
+  const heightInMeters = currentHeight / 100;
+  const bmi = currentWeight / (heightInMeters * heightInMeters);
+
+  const roundedBmi = Math.round(bmi * 100) / 100;
+
+  let bmiCategory = "";
+  if (roundedBmi < 18.5) {
+    bmiCategory = "Underweight";
+  } else if (roundedBmi >= 18.5 && roundedBmi < 24.9) {
+    bmiCategory = "Normal weight";
+  } else if (roundedBmi >= 25 && roundedBmi < 29.9) {
+    bmiCategory = "Overweight";
+  } else if (roundedBmi >= 30) {
+    bmiCategory = "Obese";
+  }
+  return { bmi: roundedBmi, bmiCategory };
 }

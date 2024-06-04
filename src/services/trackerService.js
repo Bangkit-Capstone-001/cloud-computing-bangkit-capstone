@@ -52,7 +52,7 @@ export async function addUserWeightService(userRef, weight, date, today) {
   const closestDateDifference = Math.abs(today - new Date(closestExistingDate));
 
   if (inputDateDifference <= closestDateDifference) {
-    await updateDoc(userRef, { currentWeigt: weight });
+    await updateDoc(userRef, { currentWeight: weight });
   }
 
   return;

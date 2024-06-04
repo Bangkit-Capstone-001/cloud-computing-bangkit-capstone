@@ -113,7 +113,7 @@ export async function updateUserProfile(request, h) {
         updateData.activityLevel = activityLevel;
       }
 
-      if (currentHeight || currentWeight) {
+      if (currentHeight) {
         const docRef = doc(db, "Users", user.uid);
         const docSnapshot = await getDoc(docRef);
         const userData = docSnapshot.data();

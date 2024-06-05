@@ -7,6 +7,7 @@ import {
   getUserWorkoutPlanById,
   updateUserWorkoutPlan,
   deleteUserWorkoutPlan,
+  getWorkoutRecommendations,
 } from "../controller/workoutController.js";
 
 export default function registerWorkoutRoutes(server) {
@@ -66,6 +67,14 @@ export default function registerWorkoutRoutes(server) {
       options: {
         pre: [{ method: validateFirebaseIdToken }],
       },
-    }
+    },
+    {
+      path: "/api/workout/recommendations",
+      method: "GET",
+      handler: getWorkoutRecommendations,
+      options: {
+        pre: [{ method: validateFirebaseIdToken }],
+      },
+    },
   ]);
 }

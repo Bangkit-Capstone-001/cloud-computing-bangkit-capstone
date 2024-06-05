@@ -21,35 +21,27 @@ export async function createWorkoutPlanService(userRef, data) {
 }
 
 export async function getAllUserWorkoutPlanService(userRef) {
-  const workoutPlanRef = collection(userRef, "WorkoutPlas");
-  const workoutPlansSnapshot = await getDocs(workoutPlanRef);
-  const workoutPlans = [];
+  try {
+    const workoutPlanRef = collection(userRef, "WorkoutPlans");
+    const workoutPlansSnapshot = await getDocs(workoutPlanRef);
+    const workoutPlans = [];
 
-  for (const docSnapshot of workoutPlansSnapshot.docs) {
-    const workoutPlanData = docSnapshot.data();
-    const resolvedWorkouts = [];
+    for (const docSnapshot of workoutPlansSnapshot.docs) {
+      const workoutPlanData = docSnapshot.data();
+      const resolvedWorkouts = await resolveWorkouts(workoutPlanData.workouts);
 
-    // Resolve each workout reference
-    for (const workoutRef of workoutPlanData.workouts) {
-      const workoutDoc = await getDoc(workoutRef);
-      if (workoutDoc.exists()) {
-        resolvedWorkouts.push({ id: workoutDoc.id, ...workoutDoc.data() });
-      } else {
-        resolvedWorkouts.push({
-          id: workoutRef.id,
-          error: "Document does not exist",
-        });
-      }
+      workoutPlans.push({
+        id: docSnapshot.id,
+        days: workoutPlanData.days,
+        workouts: resolvedWorkouts,
+      });
     }
 
-    workoutPlans.push({
-      id: docSnapshot.id,
-      days: workoutPlanData.days,
-      workouts: resolvedWorkouts,
-    });
+    return workoutPlans;
+  } catch (error) {
+    console.error("Error fetching user workout plans:", error);
+    throw error;
   }
-
-  return workoutPlans;
 }
 
 export async function getUserWorkoutPlanByIdService(userRef, workoutPlanId) {
@@ -62,19 +54,7 @@ export async function getUserWorkoutPlanByIdService(userRef, workoutPlanId) {
     }
 
     const workoutPlanData = workoutPlanDocSnapshot.data();
-    const resolvedWorkouts = [];
-
-    for (const workoutRef of workoutPlanData.workouts) {
-      const workoutDoc = await getDoc(workoutRef);
-      if (workoutDoc.exists()) {
-        resolvedWorkouts.push({ id: workoutDoc.id, ...workoutDoc.data() });
-      } else {
-        resolvedWorkouts.push({
-          id: workoutRef.id,
-          error: "Document does not exist",
-        });
-      }
-    }
+    const resolvedWorkouts = await resolveWorkouts(workoutPlanData.workouts);
 
     const resolvedWorkoutPlan = {
       id: workoutPlanDocSnapshot.id,
@@ -84,6 +64,7 @@ export async function getUserWorkoutPlanByIdService(userRef, workoutPlanId) {
 
     return resolvedWorkoutPlan;
   } catch (error) {
+    console.error("Error fetching user workout plan by ID:", error);
     throw error;
   }
 }
@@ -134,4 +115,55 @@ export async function fetchWorkoutsByGroupAndOptionService(bodyGroup, option) {
     workouts.push({ id: doc.id, ...doc.data() });
   });
   return workouts;
+}
+
+export async function getWorkoutPlanByTargetAndOption(userRef, target, option) {
+  try {
+    const workoutPlansRef = collection(userRef, "WorkoutPlans");
+
+    const querySnapshot = await getDocs(
+      query(
+        workoutPlansRef,
+        where("target", "==", target),
+        where("option", "==", option)
+      )
+    );
+
+    if (querySnapshot.empty) {
+      return null;
+    } else {
+      const workoutPlanDoc = querySnapshot.docs[0];
+      const workoutPlanId = workoutPlanDoc.id;
+      const workoutPlanData = workoutPlanDoc.data();
+
+      const resolvedWorkouts = await resolveWorkouts(workoutPlanData.workouts);
+
+      return {
+        id: workoutPlanId,
+        days: workoutPlanData.days,
+        workouts: resolvedWorkouts,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching workout plan ID:", error);
+    throw error;
+  }
+}
+
+async function resolveWorkouts(workoutRefs) {
+  const resolvedWorkouts = [];
+
+  for (const workoutRef of workoutRefs) {
+    const workoutDoc = await getDoc(workoutRef);
+    if (workoutDoc.exists()) {
+      resolvedWorkouts.push({ id: workoutDoc.id, ...workoutDoc.data() });
+    } else {
+      resolvedWorkouts.push({
+        id: workoutRef.id,
+        error: "Document does not exist",
+      });
+    }
+  }
+
+  return resolvedWorkouts;
 }

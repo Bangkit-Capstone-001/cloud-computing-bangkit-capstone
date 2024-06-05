@@ -1,6 +1,7 @@
 import { getAuth } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
+import fetch from "node-fetch";
 import {
   doc,
   collection,
@@ -19,6 +20,7 @@ import {
   getUserWorkoutPlanByIdService,
   updateUserWorkoutPlanService,
   fetchWorkoutsByGroupAndOptionService,
+  getWorkoutPlanByTargetAndOption,
 } from "../services/workoutPlanService.js";
 
 const auth = getAuth(firebaseApp);
@@ -429,6 +431,70 @@ export async function deleteUserWorkoutPlan(request, h) {
         status: 500,
         message:
           "An error occurred while deleting a workout plan. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
+export async function getWorkoutRecommendations(request, h) {
+  try {
+    const user = auth.currentUser;
+
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to retrieve workout recommendations.",
+        })
+        .code(401);
+    } else {
+      const userRef = doc(db, "Users", user.uid);
+      const { target, option } = request.query;
+
+      const { workouts } = await getWorkoutPlanByTargetAndOption(
+        userRef,
+        target,
+        option
+      );
+
+      const workoutNames = workouts.map((workout) => workout.exercise_name);
+
+      const url = "https://fitfirst-flask-haexo7tjpa-et.a.run.app/recommend";
+
+      const requestBody = {
+        body_group: target + " Body",
+        exercise_option: option,
+        user_favorites: workoutNames,
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+
+      return h
+        .response({
+          status: 200,
+          message: `Retrieved ${responseData.length} recommendation of ${target} Body workouts with option ${option}`,
+          data: responseData,
+        })
+        .code(200);
+    }
+  } catch (error) {
+    console.log(error.message);
+    return h
+      .response({
+        status: 500,
+        message: "Failed to fetch workout recommendations",
       })
       .code(500);
   }

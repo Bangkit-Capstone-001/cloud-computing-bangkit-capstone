@@ -8,11 +8,12 @@ import {
   getDocs,
   query,
   setDoc,
+  where,
   updateDoc,
 } from "firebase/firestore";
 
 export async function createWorkoutPlanService(userRef, data) {
-  const workoutPlanRef = collection(userRef, "WorkoutPlan");
+  const workoutPlanRef = collection(userRef, "WorkoutPlans");
   const workoutPlanQuery = query(workoutPlanRef);
   const snapshot = await getDocs(workoutPlanQuery);
 
@@ -20,7 +21,7 @@ export async function createWorkoutPlanService(userRef, data) {
 }
 
 export async function getAllUserWorkoutPlanService(userRef) {
-  const workoutPlanRef = collection(userRef, "WorkoutPlan");
+  const workoutPlanRef = collection(userRef, "WorkoutPlas");
   const workoutPlansSnapshot = await getDocs(workoutPlanRef);
   const workoutPlans = [];
 
@@ -48,13 +49,12 @@ export async function getAllUserWorkoutPlanService(userRef) {
     });
   }
 
-  console.log(workoutPlans); // To verify the data
   return workoutPlans;
 }
 
 export async function getUserWorkoutPlanByIdService(userRef, workoutPlanId) {
   try {
-    const workoutPlanDocRef = doc(userRef, "WorkoutPlan", workoutPlanId);
+    const workoutPlanDocRef = doc(userRef, "WorkoutPlans", workoutPlanId);
     const workoutPlanDocSnapshot = await getDoc(workoutPlanDocRef);
 
     if (!workoutPlanDocSnapshot.exists()) {
@@ -82,7 +82,6 @@ export async function getUserWorkoutPlanByIdService(userRef, workoutPlanId) {
       workouts: resolvedWorkouts,
     };
 
-    console.log(resolvedWorkoutPlan); // To verify the data
     return resolvedWorkoutPlan;
   } catch (error) {
     throw error;
@@ -95,7 +94,7 @@ export async function updateUserWorkoutPlanService(
   data
 ) {
   try {
-    const workoutPlanDocRef = doc(userRef, "WorkoutPlan", workoutPlanId);
+    const workoutPlanDocRef = doc(userRef, "WorkoutPlans", workoutPlanId);
     const workoutPlanDocSnapshot = await getDoc(workoutPlanDocRef);
 
     if (!workoutPlanDocSnapshot.exists()) {
@@ -110,7 +109,7 @@ export async function updateUserWorkoutPlanService(
 
 export async function deleteUserWorkoutPlanService(userRef, workoutPlanId) {
   try {
-    const workoutPlanDocRef = doc(userRef, "WorkoutPlan", workoutPlanId);
+    const workoutPlanDocRef = doc(userRef, "WorkoutPlans", workoutPlanId);
     const workoutPlanDocSnapshot = await getDoc(workoutPlanDocRef);
 
     if (!workoutPlanDocSnapshot.exists()) {
@@ -121,4 +120,18 @@ export async function deleteUserWorkoutPlanService(userRef, workoutPlanId) {
   } catch (error) {
     throw error;
   }
+}
+
+export async function fetchWorkoutsByGroupAndOptionService(bodyGroup, option) {
+  const workoutsQuery = query(
+    collection(db, "Workouts"),
+    where("body_group", "==", bodyGroup),
+    where("option", "==", option)
+  );
+  const workoutsSnapshot = await getDocs(workoutsQuery);
+  const workouts = [];
+  workoutsSnapshot.forEach((doc) => {
+    workouts.push({ id: doc.id, ...doc.data() });
+  });
+  return workouts;
 }

@@ -91,7 +91,8 @@ export async function updateUserProfile(request, h) {
       if (currentHeight) updateData.currentHeight = currentHeight;
       if (currentWeight) updateData.currentWeight = currentWeight;
       if (gender) {
-        if (gender !== "Male" || gender !== "Female") {
+        const validGenders = ["Male", "Female"];
+        if (!validGenders.includes(gender)) {
           return h
             .response({
               status: 400,
@@ -102,11 +103,8 @@ export async function updateUserProfile(request, h) {
         updateData.gender = gender;
       }
       if (goal) {
-        if (
-          goal !== "weightLoss" ||
-          goal !== "weightMaintain" ||
-          goal !== "weightGain"
-        ) {
+        const validGoals = ["weightLoss", "weightMaintain", "weightGain"];
+        if (!validGoals.includes(goal)) {
           return h
             .response({
               status: 400,
@@ -118,12 +116,13 @@ export async function updateUserProfile(request, h) {
         updateData.goal = goal;
       }
       if (activityLevel) {
-        if (
-          activityLevel !== "sedentary" ||
-          activityLevel !== "light" ||
-          activityLevel !== "moderate" ||
-          activityLevel !== "active"
-        ) {
+        const validActivityLevels = [
+          "sedentary",
+          "light",
+          "moderate",
+          "active",
+        ];
+        if (!validActivityLevels.includes(activityLevel)) {
           return h
             .response({
               status: 400,
@@ -135,6 +134,17 @@ export async function updateUserProfile(request, h) {
         updateData.activityLevel = activityLevel;
       }
 
+      if (currentHeight) {
+        const docRef = doc(db, "Users", user.uid);
+        const docSnapshot = await getDoc(docRef);
+        const userData = docSnapshot.data();
+
+        const { bmi } = await bmiCalculator(
+          userData.currentHeight,
+          userData.currentWeight
+        );
+        updateData.bmi = bmi;
+      }
       const docRef = doc(db, "Users", user.uid);
       await updateDoc(docRef, updateData);
 
@@ -174,8 +184,19 @@ export async function calculateBMI(request, h) {
 
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
-        const heightInMeters = userData.currentHeight / 100;
-        const bmi = userData.currentWeight / (heightInMeters * heightInMeters);
+
+        if (userData.bmi === undefined) {
+          return h
+            .response({
+              status: 400,
+              message:
+                "Your bmi data is missing. Please input your weight to proceed.",
+            })
+            .code(400);
+        }
+
+        const bmi = userData.bmi;
+
         let bmiCategory = "";
         if (bmi < 18.5) {
           bmiCategory = "Underweight";
@@ -262,4 +283,13 @@ export async function updateEmailPassUser(request, h) {
       })
       .code(500);
   }
+}
+
+async function bmiCalculator(currentHeight, currentWeight) {
+  const heightInMeters = currentHeight / 100;
+  const bmi = currentWeight / (heightInMeters * heightInMeters);
+
+  const roundedBmi = Math.round(bmi * 100) / 100;
+
+  return { bmi: roundedBmi };
 }

@@ -451,13 +451,22 @@ export async function getWorkoutRecommendations(request, h) {
       const userRef = doc(db, "Users", user.uid);
       const { target, option } = request.query;
 
-      const { workouts } = await getWorkoutPlanByTargetAndOption(
+      const result = await getWorkoutPlanByTargetAndOption(
         userRef,
         target,
         option
       );
 
-      const workoutNames = workouts.map((workout) => workout.exercise_name);
+      if (result === null) {
+        return h.response({
+          status: 200,
+          message: "No workout recommendations for you.",
+        });
+      }
+
+      const workoutNames = result.workouts.map(
+        (workout) => workout.exercise_name
+      );
 
       const url = "https://fitfirst-flask-haexo7tjpa-et.a.run.app/recommend";
 

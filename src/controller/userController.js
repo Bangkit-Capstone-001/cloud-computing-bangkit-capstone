@@ -23,10 +23,8 @@ export async function getUserProfile(request, h) {
 
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
-        const bmi =
-          parseInt(userData.currentWeight) /
-          (parseInt(userData.currentHeight) / 100) ** 2;
         let bmiCategory = "";
+        const bmi = userData.bmi;
         if (bmi < 18.5) {
           bmiCategory = "Underweight";
         } else if (bmi >= 18.5 && bmi < 24.9) {
@@ -40,7 +38,7 @@ export async function getUserProfile(request, h) {
           .response({
             status: 200,
             message: "User profile retrieved successfully",
-            data: { ...userData, bmi, bmiCategory },
+            data: { ...userData, bmiCategory },
           })
           .code(200);
       } else {
@@ -141,7 +139,7 @@ export async function updateUserProfile(request, h) {
         const userData = docSnapshot.data();
 
         const { bmi } = await bmiCalculator(
-          userData.currentHeight,
+          currentHeight,
           userData.currentWeight
         );
         updateData.bmi = bmi;

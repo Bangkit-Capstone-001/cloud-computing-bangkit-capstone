@@ -2,6 +2,7 @@ import { getAuth, updateEmail, updatePassword } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { bmiCalculator } from "../services/trackerService.js";
 
 const auth = getAuth(firebaseApp);
 
@@ -22,11 +23,22 @@ export async function getUserProfile(request, h) {
 
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
+        let bmiCategory = "";
+        const bmi = userData.bmi;
+        if (bmi < 18.5) {
+          bmiCategory = "Underweight";
+        } else if (bmi >= 18.5 && bmi < 24.9) {
+          bmiCategory = "Normal weight";
+        } else if (bmi >= 25 && bmi < 29.9) {
+          bmiCategory = "Overweight";
+        } else if (bmi >= 30) {
+          bmiCategory = "Obese";
+        }
         return h
           .response({
             status: 200,
             message: "User profile retrieved successfully",
-            data: userData,
+            data: { ...userData, bmiCategory },
           })
           .code(200);
       } else {
@@ -51,8 +63,15 @@ export async function getUserProfile(request, h) {
 
 export async function updateUserProfile(request, h) {
   try {
-    const { name, age, gender, currentHeight, goal, activityLevel } =
-      request.payload;
+    const {
+      name,
+      age,
+      gender,
+      currentHeight,
+      currentWeight,
+      goal,
+      activityLevel,
+    } = request.payload;
 
     const user = auth.currentUser;
 
@@ -69,6 +88,7 @@ export async function updateUserProfile(request, h) {
       if (name) updateData.name = name;
       if (age) updateData.age = age;
       if (currentHeight) updateData.currentHeight = currentHeight;
+      if (currentWeight) updateData.currentWeight = currentWeight;
       if (gender) {
         const validGenders = ["Male", "Female"];
         if (!validGenders.includes(gender)) {
@@ -119,7 +139,7 @@ export async function updateUserProfile(request, h) {
         const userData = docSnapshot.data();
 
         const { bmi } = await bmiCalculator(
-          userData.currentHeight,
+          currentHeight,
           userData.currentWeight
         );
         updateData.bmi = bmi;
@@ -262,13 +282,4 @@ export async function updateEmailPassUser(request, h) {
       })
       .code(500);
   }
-}
-
-async function bmiCalculator(currentHeight, currentWeight) {
-  const heightInMeters = currentHeight / 100;
-  const bmi = currentWeight / (heightInMeters * heightInMeters);
-
-  const roundedBmi = Math.round(bmi * 100) / 100;
-
-  return { bmi: roundedBmi };
 }

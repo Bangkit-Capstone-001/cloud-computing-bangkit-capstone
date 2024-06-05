@@ -52,7 +52,10 @@ export async function addUserWeightService(userRef, weight, date, today) {
   const closestDateDifference = Math.abs(today - new Date(closestExistingDate));
 
   if (inputDateDifference <= closestDateDifference) {
-    await updateDoc(userRef, { currentWeight: weight });
+    const userSnapshot = await getDoc(userRef);
+    const userData = userSnapshot.data();
+    const { bmi } = await bmiCalculator(userData.currentHeight, weight);
+    await updateDoc(userRef, { bmi: bmi, currentWeight: weight });
   }
 
   return;
@@ -72,4 +75,13 @@ async function getClosestDateToToday(today, dates) {
   });
 
   return closestDate;
+}
+
+export async function bmiCalculator(currentHeight, currentWeight) {
+  const heightInMeters = currentHeight / 100;
+  const bmi = currentWeight / (heightInMeters * heightInMeters);
+
+  const roundedBmi = Math.round(bmi * 100) / 100;
+
+  return { bmi: roundedBmi };
 }

@@ -2,6 +2,7 @@ import { getAuth, updateEmail, updatePassword } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { bmiCalculator } from "../services/trackerService.js";
 
 const auth = getAuth(firebaseApp);
 
@@ -283,13 +284,4 @@ export async function updateEmailPassUser(request, h) {
       })
       .code(500);
   }
-}
-
-async function bmiCalculator(currentHeight, currentWeight) {
-  const heightInMeters = currentHeight / 100;
-  const bmi = currentWeight / (heightInMeters * heightInMeters);
-
-  const roundedBmi = Math.round(bmi * 100) / 100;
-
-  return { bmi: roundedBmi };
 }

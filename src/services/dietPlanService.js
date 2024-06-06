@@ -9,6 +9,7 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
+import { getFoodIntakeToday } from "./foodAnalysisService.js";
 
 export async function createDietPlanService(userRef, data) {
   const dietPlanRef = collection(userRef, "DietPlan");
@@ -34,4 +35,12 @@ export async function getDietPlanService(userRef) {
   }
 
   return snapshot.docs[0].data();
+}
+
+export async function getTodayTotalCalories(userRef) {
+  const intake = await getFoodIntakeToday(userRef);
+  if (!intake) {
+    return 0;
+  }
+  return intake.reduce((acc, curr) => acc + curr.calories, 0);
 }

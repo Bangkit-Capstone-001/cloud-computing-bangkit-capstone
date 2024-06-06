@@ -11,7 +11,10 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { createFoodAnalysisService, getFoodByNameService } from "../services/foodAnalysisService.js";
+import {
+  createFoodAnalysisService,
+  getFoodByNameService,
+} from "../services/foodAnalysisService.js";
 
 const auth = getAuth(firebaseApp);
 
@@ -66,7 +69,7 @@ export async function createUserFoodHistory(request, h) {
         food: food,
         quantity: quantity,
         calories: (parseInt(foodData.komposisi_energi_kal) * quantity) / 100,
-        date: new Date().toISOString(),
+        date: Date.now(),
       });
 
       return h

@@ -58,3 +58,29 @@ export async function getFoodByNameService(foodName) {
 
   return filteredFoods;
 }
+
+export async function getFoodIntakeToday(userRef) {
+  const foodAnalysisRef = collection(userRef, "FoodAnalysis");
+
+  const now = new Date();
+  const startOfDay = new Date(now.setHours(0, 0, 0, 0)).getTime();
+  const endOfDay = new Date(now.setHours(23, 59, 59, 999)).getTime();
+
+  const foodAnalysisQuery = query(
+    foodAnalysisRef,
+    where("date", ">=", startOfDay),
+    where("date", "<=", endOfDay)
+  );
+
+  const snapshot = await getDocs(foodAnalysisQuery);
+  if (snapshot.empty) {
+    return null;
+  }
+
+  const foodAnalysis = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return { id: doc.id, ...data };
+  });
+
+  return foodAnalysis;
+}

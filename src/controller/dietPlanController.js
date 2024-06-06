@@ -14,6 +14,7 @@ import {
 import {
   createDietPlanService,
   getDietPlanService,
+  getTodayTotalCalories,
 } from "../services/dietPlanService.js";
 
 const auth = getAuth(firebaseApp);
@@ -52,11 +53,16 @@ export async function getDietPlan(request, h) {
         .code(404);
     }
 
+    const calorieEaten = await getTodayTotalCalories(userRef);
     return h
       .response({
         status: 200,
         message: "Diet plan retrieved successfully",
-        data: userDietPlan,
+        data: {
+          ...userDietPlan,
+          calorieEaten,
+          remainingCalories: userDietPlan.calorie - calorieEaten,
+        },
       })
       .code(200);
   } catch (error) {

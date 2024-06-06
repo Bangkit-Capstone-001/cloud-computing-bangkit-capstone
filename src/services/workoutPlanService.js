@@ -33,6 +33,9 @@ export async function getAllUserWorkoutPlanService(userRef) {
       workoutPlans.push({
         id: docSnapshot.id,
         days: workoutPlanData.days,
+        level: workoutPlanData.level,
+        option: workoutPlanData.option,
+        target: workoutPlanData.target,
         workouts: resolvedWorkouts,
       });
     }
@@ -59,6 +62,9 @@ export async function getUserWorkoutPlanByIdService(userRef, workoutPlanId) {
     const resolvedWorkoutPlan = {
       id: workoutPlanDocSnapshot.id,
       days: workoutPlanData.days,
+      level: workoutPlanData.level,
+      option: workoutPlanData.option,
+      target: workoutPlanData.target,
       workouts: resolvedWorkouts,
     };
 

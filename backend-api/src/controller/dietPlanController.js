@@ -12,7 +12,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import {
-  createDietPlanService,
+  createOrUpdateDietPlanService,
   getDietPlanService,
   getTodayTotalCalories,
 } from "../services/dietPlanService.js";
@@ -149,7 +149,7 @@ export async function createDietPlan(request, h) {
         calorie = 1100;
       }
 
-      createDietPlanService(userRef, {
+      createOrUpdateDietPlanService(userRef, {
         weightTarget,
         duration,
         calorie,
@@ -167,6 +167,111 @@ export async function createDietPlan(request, h) {
         })
         .code(201);
     }
+  } catch (error) {
+    console.log(error);
+    return h
+      .response({
+        status: 500,
+        message: "An error occurred. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
+export async function updateDietPlan(request, h) {
+  let { weightTarget, duration } = request.payload;
+
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      return h
+        .response({
+          status: 401,
+          message: "You must be logged in to update a diet plan",
+        })
+        .code(401);
+    }
+
+    const userRef = doc(db, "Users", user.uid);
+    const userSnapshot = await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+      return h
+        .response({
+          status: 404,
+          message: "User profile does not exist",
+        })
+        .code(404);
+    }
+
+    const userDietPlanRef = collection(userRef, "DietPlan");
+    const userDietPlanCollection = await getDocs(userDietPlanRef);
+
+    if (userDietPlanCollection.empty) {
+      return h
+        .response({
+          status: 404,
+          message: "Diet plan does not exist",
+        })
+        .code(404);
+    }
+
+    const userDietPlanSnapshot = userDietPlanCollection.docs[0];
+
+    const userData = userSnapshot.data();
+    const { currentWeight, currentHeight, age, gender, goal, activityLevel } =
+      userData;
+
+    if (!weightTarget) weightTarget = userDietPlanSnapshot.data().weightTarget;
+    if (!duration) duration = userDietPlanSnapshot.data().duration;
+
+    let bmr, calorie;
+
+    if (gender === "Female") {
+      bmr = 655.1 + 9.563 * currentWeight + 1.85 * currentHeight - 4.676 * age;
+    } else {
+      bmr = 66.5 + 13.75 * currentWeight + 5.003 * currentHeight - 6.75 * age;
+    }
+
+    if (activityLevel === "sedentary") {
+      bmr *= 1.2;
+    } else if (activityLevel === "light") {
+      bmr *= 1.375;
+    } else if (activityLevel === "moderate") {
+      bmr *= 1.55;
+    } else if (activityLevel === "active") {
+      bmr *= 1.725;
+    }
+
+    if (goal === "weightGain") {
+      calorie = bmr + (weightTarget * 7000) / duration;
+    } else if (goal === "weightLoss") {
+      calorie = bmr - (7700 * weightTarget) / duration;
+    } else {
+      calorie = bmr;
+    }
+
+    if (calorie < 1100) {
+      calorie = 1100;
+    }
+
+    await createOrUpdateDietPlanService(userRef, {
+      weightTarget,
+      duration,
+      calorie,
+    });
+
+    return h
+      .response({
+        status: 200,
+        message: "Diet plan updated successfully",
+        data: {
+          weightTarget,
+          duration,
+          calorie,
+        },
+      })
+      .code(200);
   } catch (error) {
     console.log(error);
     return h

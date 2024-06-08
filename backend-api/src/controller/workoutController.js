@@ -60,8 +60,6 @@ async function getUpperOrLowerBodyWorkout(target, option, h) {
 
 export async function getRandomWorkout(request, h) {
   try {
-    const { uid } = request.auth;
-
     const { level, target, option } = request.query;
     let numOfWorkout;
 
@@ -124,8 +122,6 @@ export async function getRandomWorkout(request, h) {
 
 export async function getAllWorkoutByTargetAndOption(request, h) {
   try {
-    const { uid } = request.auth;
-
     const { target, option } = request.query;
 
     let selectedWorkouts;

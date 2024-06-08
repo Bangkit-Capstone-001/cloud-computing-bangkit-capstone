@@ -112,20 +112,33 @@ export async function getAllFoods(request, h) {
   const { uid } = request.auth;
 
   try {
-    const userRef = doc(db, "Users", uid);
-    const userSnapshot = await getDoc(userRef);
-
-    if (!userSnapshot.exists()) {
-      return h
-        .response({
-          status: 404,
-          message: "User profile does not exist",
-        })
-        .code(404);
-    }
-
     const foods = await getAllFoodsServices();
     return h.response({ status: 200, data: foods }).code(200);
+  } catch (error) {
+    console.log(error);
+    return h
+      .response({
+        status: 500,
+        message: "An error occurred. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
+export async function getRandomFoods(request, h) {
+  try {
+    const { randomize } = request.query;
+    const foods = await getAllFoodsServices();
+    const randomFoods = foods
+      .sort(() => 0.5 - Math.random())
+      .slice(0, randomize);
+    return h
+      .response({
+        status: 200,
+        message: `Retrieved ${randomize} random foods`,
+        data: randomFoods,
+      })
+      .code(200);
   } catch (error) {
     console.log(error);
     return h

@@ -1,4 +1,3 @@
-import { getAuth } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
 import {
@@ -17,21 +16,11 @@ import {
   getTodayTotalCalories,
 } from "../services/dietPlanService.js";
 
-const auth = getAuth(firebaseApp);
-
 export async function getDietPlan(request, h) {
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      return h
-        .response({
-          status: 401,
-          message: "You must be logged in to get a diet plan",
-        })
-        .code(401);
-    }
+    const { uid } = request.auth;
 
-    const userRef = doc(db, "Users", user.uid);
+    const userRef = doc(db, "Users", uid);
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {
@@ -79,20 +68,13 @@ export async function getDietPlan(request, h) {
 export async function createDietPlan(request, h) {
   try {
     const { weightTarget, duration } = request.payload;
-    const user = auth.currentUser;
+    const { uid } = request.auth;
 
     if (!duration) {
       duration = 30;
     }
 
-    if (!user) {
-      return h
-        .response({
-          status: 401,
-          message: "You must be logged in to create a diet plan",
-        })
-        .code(401);
-    } else if (!weightTarget) {
+    if (!weightTarget) {
       return h
         .response({
           status: 400,
@@ -100,7 +82,7 @@ export async function createDietPlan(request, h) {
         })
         .code(400);
     } else {
-      const userRef = doc(db, "Users", user.uid);
+      const userRef = doc(db, "Users", uid);
       const userSnapshot = await getDoc(userRef);
 
       if (!userSnapshot.exists()) {
@@ -182,17 +164,9 @@ export async function updateDietPlan(request, h) {
   let { weightTarget, duration } = request.payload;
 
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      return h
-        .response({
-          status: 401,
-          message: "You must be logged in to update a diet plan",
-        })
-        .code(401);
-    }
+    const { uid } = request.auth;
 
-    const userRef = doc(db, "Users", user.uid);
+    const userRef = doc(db, "Users", uid);
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {

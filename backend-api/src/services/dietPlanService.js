@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { getFoodIntakeToday } from "./foodAnalysisService.js";
 
-export async function createDietPlanService(userRef, data) {
+export async function createOrUpdateDietPlanService(userRef, data) {
   const dietPlanRef = collection(userRef, "DietPlan");
   const dietPlanQuery = query(dietPlanRef);
   const snapshot = await getDocs(dietPlanQuery);

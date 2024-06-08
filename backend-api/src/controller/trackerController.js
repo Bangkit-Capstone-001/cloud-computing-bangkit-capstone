@@ -1,4 +1,3 @@
-import { getAuth } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
 import {
@@ -17,22 +16,13 @@ import {
   getAllUserWeightHistoriesService,
 } from "../services/trackerService.js";
 
-const auth = getAuth(firebaseApp);
-
 export async function addUserWeight(request, h) {
   try {
     const { weight, date } = request.payload;
-    const user = auth.currentUser;
+    const { uid } = request.auth;
     const today = new Date();
 
-    if (!user) {
-      return h
-        .response({
-          status: 401,
-          message: "You must be logged in to add weight data",
-        })
-        .code(401);
-    } else if (!weight || !date) {
+    if (!weight || !date) {
       return h
         .response({
           status: 400,
@@ -47,7 +37,7 @@ export async function addUserWeight(request, h) {
         })
         .code(400);
     } else {
-      const userRef = doc(db, "Users", user.uid);
+      const userRef = doc(db, "Users", uid);
       await addUserWeightService(userRef, weight, date, today);
 
       return h
@@ -71,30 +61,21 @@ export async function addUserWeight(request, h) {
 
 export async function getAllUserWeightHistories(request, h) {
   try {
-    const user = auth.currentUser;
+    const { uid } = request.auth;
 
-    if (!user) {
-      return h
-        .response({
-          status: 401,
-          message: "You must be logged in to access weight history.",
-        })
-        .code(401);
-    } else {
-      const userRef = doc(db, "Users", user.uid);
-      const weightHistoryData = await getAllUserWeightHistoriesService(userRef);
+    const userRef = doc(db, "Users", uid);
+    const weightHistoryData = await getAllUserWeightHistoriesService(userRef);
 
-      return h
-        .response({
-          status: 200,
-          message:
-            weightHistoryData.length === 0
-              ? "No Weight histories found"
-              : `${weightHistoryData.length} weight histories found for your profile.`,
-          data: weightHistoryData,
-        })
-        .code(200);
-    }
+    return h
+      .response({
+        status: 200,
+        message:
+          weightHistoryData.length === 0
+            ? "No Weight histories found"
+            : `${weightHistoryData.length} weight histories found for your profile.`,
+        data: weightHistoryData,
+      })
+      .code(200);
   } catch (error) {
     console.log(error.message);
     return h

@@ -4,12 +4,14 @@ import {
   doc,
   getDoc,
   getDocs,
+  orderBy,
   query,
   setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
 import { db } from "../config/firebaseConfig.js";
+
 
 export async function createFoodAnalysisService(userRef, data) {
   const foodAnalysisRef = collection(userRef, "FoodAnalysis");
@@ -83,4 +85,21 @@ export async function getFoodIntakeToday(userRef) {
   });
 
   return foodAnalysis;
+}
+
+export async function getAllFoodsServices() {
+  const foodRef = collection(db, "Foods");
+  const foodQuery = query(foodRef);
+  const snapshot = await getDocs(foodQuery);
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  const foods = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return { id: doc.id, ...data };
+  });
+
+  return foods;
 }

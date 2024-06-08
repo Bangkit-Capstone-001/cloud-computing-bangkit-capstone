@@ -1,4 +1,4 @@
-import { createUserFoodHistory, getFoodByName } from "../controller/foodAnalysisController.js";
+import { createUserFoodHistory, getAllFoods, getFoodByName } from "../controller/foodAnalysisController.js";
 import { validateFirebaseIdToken } from "../middleware/authMiddleware.js";
 
 export default function registerFoodAnalysisRoutes(server) {
@@ -18,7 +18,14 @@ export default function registerFoodAnalysisRoutes(server) {
       options: {
         pre: [{ method: validateFirebaseIdToken }],
       },
-
-    }
+    },
+    {
+      path: "/api/food-analysis/foods/all",
+      method: "GET",
+      handler: getAllFoods,
+      options: {
+        pre: [{ method: validateFirebaseIdToken }],
+      },
+    },
   ]);
 }

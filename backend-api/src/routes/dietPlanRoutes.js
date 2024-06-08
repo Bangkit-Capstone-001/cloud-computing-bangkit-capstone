@@ -4,7 +4,6 @@ import {
   updateDietPlan,
 } from "../controller/dietPlanController.js";
 import { validateFirebaseIdToken } from "../middleware/authMiddleware.js";
-import { getDietPlanService } from "../services/dietPlanService.js";
 
 export default function registerDietPlanRoutes(server) {
   server.route([
@@ -19,7 +18,7 @@ export default function registerDietPlanRoutes(server) {
     {
       path: "/api/diet-plan",
       method: "GET",
-      handler: getDietPlanService,
+      handler: getDietPlan,
       options: {
         pre: [{ method: validateFirebaseIdToken }],
       },
@@ -31,6 +30,6 @@ export default function registerDietPlanRoutes(server) {
       options: {
         pre: [{ method: validateFirebaseIdToken }],
       },
-    }
+    },
   ]);
 }

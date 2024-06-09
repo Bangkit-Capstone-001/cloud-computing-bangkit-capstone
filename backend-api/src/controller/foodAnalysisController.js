@@ -31,13 +31,13 @@ export async function createUserFoodHistory(request, h) {
         })
         .code(404);
     }
-    const { foodId, quantity } = request.payload;
+    const { foodId, quantity, mealtime } = request.payload;
 
-    if (!foodId || !quantity) {
+    if (!foodId || !quantity || !mealtime) {
       return h
         .response({
           status: 400,
-          message: "Please provide both foodId and quantity",
+          message: "Please provide both foodId, quantity, and mealtime",
         })
         .code(400);
     }
@@ -60,6 +60,7 @@ export async function createUserFoodHistory(request, h) {
       quantity: quantity,
       calories: (parseInt(foodData.komposisi_energi_kal) * quantity) / 100,
       date: Date.now(),
+      mealtime: mealtime,
     });
 
     return h

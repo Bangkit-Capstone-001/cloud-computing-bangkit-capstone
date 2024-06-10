@@ -50,7 +50,7 @@ export async function getDietPlan(request, h) {
         data: {
           ...userDietPlan,
           calorieEaten,
-          remainingCalories: userDietPlan.calorie - calorieEaten,
+          remainingCalories: Math.max(userDietPlan.calorie - calorieEaten, 0),
         },
       })
       .code(200);

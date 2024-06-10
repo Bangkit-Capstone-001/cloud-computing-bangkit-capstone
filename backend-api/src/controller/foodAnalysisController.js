@@ -14,6 +14,7 @@ import {
   createFoodAnalysisService,
   getAllFoodsServices,
   getFoodByNameService,
+  getTodayFoodByMealtime,
 } from "../services/foodAnalysisService.js";
 
 export async function createUserFoodHistory(request, h) {
@@ -146,6 +147,39 @@ export async function getRandomFoods(request, h) {
       .response({
         status: 500,
         message: "An error occurred. Please try again later.",
+      })
+      .code(500);
+  }
+}
+
+export async function getTodayFoods(request, h) {
+  try {
+    const { uid } = request.auth;
+    const { mealtime } = request.query;
+    const userRef = doc(db, "Users", uid);
+
+    const foods = await getTodayFoodByMealtime(userRef, mealtime);
+
+    if (foods === null) {
+      return h.response({
+        status: 200,
+        message: `You have not input any ${mealtime} foods for today`,
+      });
+    }
+
+    return h
+      .response({
+        status: 200,
+        message: `Retrieved ${foods.length} of ${mealtime} foods for today`,
+        data: foods,
+      })
+      .code(200);
+  } catch (error) {
+    console.log(error.message);
+    return h
+      .response({
+        status: 500,
+        message: "Failed to fetch user's today foods",
       })
       .code(500);
   }

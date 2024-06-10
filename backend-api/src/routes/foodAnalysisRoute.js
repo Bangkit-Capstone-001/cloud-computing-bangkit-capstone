@@ -3,6 +3,7 @@ import {
   getAllFoods,
   getFoodByName,
   getRandomFoods,
+  getTodayFoods,
 } from "../controller/foodAnalysisController.js";
 import { validateFirebaseIdToken } from "../middleware/authMiddleware.js";
 
@@ -36,6 +37,14 @@ export default function registerFoodAnalysisRoutes(server) {
       path: "/api/food-analysis/foods",
       method: "GET",
       handler: getRandomFoods,
+      options: {
+        pre: [{ method: validateFirebaseIdToken }],
+      },
+    },
+    {
+      path: "/api/food-analysis/today",
+      method: "GET",
+      handler: getTodayFoods,
       options: {
         pre: [{ method: validateFirebaseIdToken }],
       },

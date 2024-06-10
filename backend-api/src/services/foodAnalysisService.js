@@ -9,9 +9,9 @@ import {
   setDoc,
   updateDoc,
   where,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "../config/firebaseConfig.js";
-
 
 export async function createFoodAnalysisService(userRef, data) {
   const foodAnalysisRef = collection(userRef, "FoodAnalysis");
@@ -102,4 +102,61 @@ export async function getAllFoodsServices() {
   });
 
   return foods;
+}
+
+export async function getTodayFoodByMealtime(userRef, mealtime) {
+  try {
+    // Getting today's date at midnight as a numeric timestamp
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayTimestamp = today.getTime();
+
+    // Getting tomorrow's date at midnight as a numeric timestamp
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const tomorrowTimestamp = tomorrow.getTime();
+
+    const foodAnalysisRef = collection(userRef, "FoodAnalysis");
+
+    const q = query(
+      foodAnalysisRef,
+      where("mealtime", "==", mealtime),
+      where("date", ">=", todayTimestamp),
+      where("date", "<", tomorrowTimestamp)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    const foodsPromises = querySnapshot.docs.map(async (doc) => {
+      const foodRef = doc.data().food;
+      const foodDoc = await getDoc(foodRef);
+      if (foodDoc.exists()) {
+        const foodData = foodDoc.data();
+        return {
+          food: {
+            id: foodDoc.id,
+            nama_bahan_makanan: foodData.nama_bahan_makanan,
+            komposisi_karbohidrat_g: foodData.komposisi_karbohidrat_g,
+            komposisi_lemak_g: foodData.komposisi_lemak_g,
+            komposisi_energi_kal: foodData.komposisi_energi_kal,
+            komposisi_protein_g: foodData.komposisi_protein_g,
+            komposisi_per: foodData.komposisi_per,
+          },
+          mealtime: doc.data().mealtime,
+          calories: doc.data().calories,
+          quantity: doc.data().quantity,
+          date: doc.data().date,
+        };
+      }
+      return null;
+    });
+
+    const foods = await Promise.all(foodsPromises);
+
+    return foods.filter((food) => food !== null);
+  } catch (error) {
+    console.error("Error fetching today's food by mealtime:", error);
+    throw error;
+  }
 }

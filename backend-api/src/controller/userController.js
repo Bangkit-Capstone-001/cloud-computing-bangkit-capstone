@@ -111,7 +111,7 @@ export async function updateUserProfile(request, h) {
     if (currentHeight) {
       const docRef = doc(db, "Users", uid);
       const docSnapshot = await getDoc(docRef);
-      const userData = docSnapshot.data();
+      const userData = docSnapshot.data(); //ini 
 
       const { bmi } = await bmiCalculator(
         currentHeight,

@@ -7,6 +7,7 @@ import {
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../config/firebaseConfig.js";
+import admin from "firebase-admin";
 
 const auth = getAuth(firebaseApp);
 
@@ -95,11 +96,13 @@ export async function login(request, h) {
 
 export async function logout(request, h) {
   try {
-    await signOut(auth);
+    const { uid } = request.auth;
+    await admin.auth().revokeRefreshTokens(uid);
+
     return h
       .response({
         status: 200,
-        message: "Logout success.",
+        message: "Logout success. Tokens revoked.",
       })
       .code(200);
   } catch (error) {

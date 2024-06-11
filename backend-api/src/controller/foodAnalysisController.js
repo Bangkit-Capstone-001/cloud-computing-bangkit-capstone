@@ -55,11 +55,12 @@ export async function createUserFoodHistory(request, h) {
         })
         .code(404);
     }
+    // console.log(foodData);
 
     const created = await createFoodAnalysisService(userRef, {
       food: food,
       quantity: quantity,
-      calories: (parseInt(foodData.komposisi_energi_kal) * quantity) / 100,
+      calories: (parseInt(foodData.komposisi_energi_kal) * quantity) / parseInt(foodData.komposisi_per),
       date: Date.now(),
       mealtime: mealtime,
     });

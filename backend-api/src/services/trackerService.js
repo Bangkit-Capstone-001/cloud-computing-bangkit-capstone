@@ -78,10 +78,10 @@ async function getClosestDateToToday(today, dates) {
 }
 
 export async function bmiCalculator(currentHeight, currentWeight) {
-  const heightInMeters = currentHeight / 100;
-  const bmi = currentWeight / (heightInMeters * heightInMeters);
+  const heightInMeters = parseInt(currentHeight) / 100;
+  const bmi = parseInt(currentWeight) / (heightInMeters * heightInMeters);
 
   const roundedBmi = Math.round(bmi * 100) / 100;
-
+  console.log(currentHeight, currentWeight, roundedBmi);
   return { bmi: roundedBmi };
 }

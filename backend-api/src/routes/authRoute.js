@@ -21,7 +21,7 @@ export default function registerAuthRoutes(server) {
     },
     {
       path: "/api/auth/logout",
-      method: "GET",
+      method: "POST",
       options: {
         pre: [{ method: validateFirebaseIdToken }],
       },

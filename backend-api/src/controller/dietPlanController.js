@@ -31,7 +31,7 @@ export async function getDietPlan(request, h) {
         })
         .code(404);
     }
-    const { currentWeight } = userSnapshot.data();
+    const { currentWeight, goal } = userSnapshot.data();
 
     const userDietPlan = await getDietPlanService(userRef);
     if (!userDietPlan) {
@@ -53,6 +53,7 @@ export async function getDietPlan(request, h) {
           currentWeight: parseInt(currentWeight),
           calorieEaten,
           remainingCalories: Math.max(userDietPlan.calorie - calorieEaten, 0),
+          goal,
         },
       })
       .code(200);

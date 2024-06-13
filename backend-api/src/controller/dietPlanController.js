@@ -134,8 +134,8 @@ export async function createDietPlan(request, h) {
       }
 
       createOrUpdateDietPlanService(userRef, {
-        weightTarget,
-        duration,
+        weightTarget: parseInt(weightTarget),
+        duration: parseInt(duration),
         calorie,
       });
 

@@ -31,13 +31,13 @@ jobs:
 
             - name: Build and push Docker image
               run: |
-                  cd backend-api
+                  cd ml-api
                   docker build -t asia-southeast2-docker.pkg.dev/fitfirst-d5bcd/fitfirst-ml-backend/fitfirst-ml-backend:latest .
                   docker push asia-southeast2-docker.pkg.dev/fitfirst-d5bcd/fitfirst-ml-backend/fitfirst-ml-backend:latest
 
             - name: Deploy to Cloud Run
               run: |
-                  gcloud run deploy fitfirst-backend \
+                  gcloud run deploy fitfirst-ml-backend \
                     --image asia-southeast2-docker.pkg.dev/fitfirst-d5bcd/fitfirst-ml-backend/fitfirst-ml-backend:latest \
                     --platform managed \
                     --region asia-southeast2 \

@@ -1,3 +1,6 @@
-node_modules
-.env
-.env.yaml
+env
+
+__pycache__
+**/__pycache__
+
+app/models

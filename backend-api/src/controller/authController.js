@@ -82,6 +82,13 @@ export async function login(request, h) {
           message: "Invalid email or password.",
         })
         .code(401);
+    } else if (error.code === "auth/wrong-password") {
+      return h
+        .response({
+          status: 401,
+          message: "Invalid email or password.",
+        })
+        .code(401);
     } else {
       console.log(error.message);
       return h

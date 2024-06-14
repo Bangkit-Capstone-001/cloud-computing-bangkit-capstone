@@ -18,4 +18,4 @@ ADD https://storage.googleapis.com/fitfirst-model-bucket/food_detection_model.ke
 EXPOSE 4000
 
 # start the server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "4000", "--proxy-headers"]
+CMD ["uvicorn", "app.main:app", "--timeout-keep-alive", "0", "--host", "0.0.0.0", "--port", "4000", "--proxy-headers"]

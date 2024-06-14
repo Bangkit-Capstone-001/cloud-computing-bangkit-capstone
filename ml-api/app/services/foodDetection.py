@@ -5,10 +5,12 @@ import requests
 from tqdm import tqdm
 
 # Define the URL to the model
-model_url = 'https://storage.googleapis.com/fitfirst-model-bucket/food_detection_model.keras'
+# model_url = 'https://storage.googleapis.com/fitfirst-model-bucket/food_detection_model.keras'
+model_url = 'https://storage.googleapis.com/fitfirst-model-bucket/best_model_densenet_27.keras'
 
 # Define the path to the local model file
-local_model_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'food_detection_model.keras')
+# local_model_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'food_detection_model.keras')
+local_model_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'best_model_densenet_27.keras')
 
 # Check if the local model file exists
 if not os.path.exists(local_model_path):
@@ -47,24 +49,31 @@ IMAGE_HEIGHT = 224
 FOOD_PREDICTION_CLASSES = [
     (0, 'Ayam Bakar'),
     (1, 'Ayam Geprek'),
-    (2, 'Bakso'),
-    (3, 'Batagor'),
-    (4, 'Bebek Goreng'),
-    (5, 'Cireng'),
-    (6, 'French Fries'),
-    (7, 'Gado - Gado'),
-    (8, 'Mie Ayam'),
-    (9, 'Nasi Goreng'),
-    (10, 'Pempek'),
-    (11, 'Pizza'),
-    (12, 'Rendang'),
-    (13, 'Sate Ayam'),
-    (14, 'Sop Buntut'),
-    (15, 'Soto'),
-    (16, 'Tahu Goreng'),
-    (17, 'Tekwan'),
-    (18, 'Telur Dadar'),
-    (19, 'Tempe Goreng')
+    (2, 'Ayam Goreng'),
+    (3, 'Bakso'),
+    (4, 'Batagor'),
+    (5, 'Bebek Goreng'),
+    (6, 'Cireng'),
+    (7, 'Donut'),
+    (8, 'French Fries'),
+    (9, 'Gado - Gado'),
+    (10, 'Gulai Kambing'),
+    (11, 'Martabak Asin'),
+    (12, 'Martabak Manis'),
+    (13, 'Mie Ayam'),
+    (14, 'Nasi Goreng'),
+    (15, 'Nasi Kuning'),
+    (16, 'Pecel Lele'),
+    (17, 'Pempek'),
+    (18, 'Pizza'),
+    (19, 'Rendang'),
+    (20, 'Sate Ayam'),
+    (21, 'Sop Buntut'),
+    (22, 'Soto'),
+    (23, 'Tahu Goreng'),
+    (24, 'Tekwan'),
+    (25, 'Telur Dadar'),
+    (26, 'Tempe Goreng')
 ]
 FOOD_LABELS = {index: name for index, name in FOOD_PREDICTION_CLASSES}
 

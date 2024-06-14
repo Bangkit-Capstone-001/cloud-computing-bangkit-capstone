@@ -22,6 +22,7 @@ async def predict(image: UploadFile = File(...)):
 
     image_bytes = await image.read()
     img = Image.open(io.BytesIO(image_bytes))
+    img = img.resize((224, 224))
 
     [label, confidence] = predict_food(img)
 

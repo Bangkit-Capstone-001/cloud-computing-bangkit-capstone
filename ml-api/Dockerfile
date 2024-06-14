@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy src code
 COPY ./app ./app
 
+ADD https://storage.googleapis.com/fitfirst-model-bucket/food_detection_model.keras ./app/models/food_detection_model.keras
+
 EXPOSE 4000
 
 # start the server

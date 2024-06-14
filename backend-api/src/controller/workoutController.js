@@ -21,6 +21,7 @@ import {
   fetchWorkoutsByGroupAndOptionService,
   getWorkoutPlanByTargetAndOption,
 } from "../services/workoutPlanService.js";
+import config from "../config/config.js";
 
 async function getFullBodyWorkout(option, h) {
   const upperTarget = "Upper";
@@ -390,7 +391,7 @@ export async function getWorkoutRecommendations(request, h) {
       (workout) => workout.exercise_name
     );
 
-    const url = "https://fitfirst-flask-haexo7tjpa-et.a.run.app/recommend";
+    const url = `${config.flaskApiUrl}recommend`;
 
     const requestBody = {
       body_group: target + " Body",

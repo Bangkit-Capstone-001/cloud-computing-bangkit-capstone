@@ -229,7 +229,13 @@ export async function getFoodByPicture(request, h) {
 		const result = await response.json();
 		const foods = await getFoodByNameService(result.food);
 
-		return h.response({ status: 200, data: foods }).code(200);
+		return h
+			.response({
+				status: 200,
+				message: `Predicted ${result.food} with confidence score of ${result.confidence}`,
+				data: foods,
+			})
+			.code(200);
 	} catch (error) {
 		console.log(error);
 		return h

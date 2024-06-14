@@ -29,7 +29,6 @@ async def predict(image: UploadFile = File(...)):
 
     # Convert image back to bytes
     img_byte_arr = io.BytesIO()
-    image.save(img_byte_arr, format=image.format)
     img_byte_arr = img_byte_arr.getvalue()
 
     [label, confidence] = predict_food(img_byte_arr)

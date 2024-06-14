@@ -43,5 +43,6 @@ jobs:
                     --region asia-southeast2 \
                     --port 4000 \
                     --allow-unauthenticated \
-                    --memory 4Gi
-                    --cpu 2
+                    --memory 4Gi \
+                    --cpu 2 \
+                    --max-instances 5

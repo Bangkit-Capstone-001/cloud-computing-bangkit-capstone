@@ -13,7 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy src code
 COPY ./app ./app
 
-ADD https://storage.googleapis.com/fitfirst-model-bucket/food_detection_model.keras ./app/models/food_detection_model.keras
+# ADD https://storage.googleapis.com/fitfirst-model-bucket/food_detection_model.keras ./app/models/food_detection_model.keras
+ADD https://storage.googleapis.com/fitfirst-model-bucket/best_model_densenet_27.keras ./app/models/best_model_densenet_27.keras
 
 EXPOSE 4000
 

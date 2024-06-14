@@ -21,16 +21,8 @@ async def predict(image: UploadFile = File(...)):
         raise HTTPException(status_code=404, detail="Invalid file type. Only images are allowed.")
 
     image_bytes = await image.read()
-    image = Image.open(io.BytesIO(image_bytes))
+    img = Image.open(io.BytesIO(image_bytes))
 
-    # Check if the image has an alpha channel (RGBA)
-    if image.mode == 'RGBA':
-        image = image.convert('RGB')
-
-    # Convert image back to bytes
-    img_byte_arr = io.BytesIO()
-    img_byte_arr = img_byte_arr.getvalue()
-
-    [label, confidence] = predict_food(img_byte_arr)
+    [label, confidence] = predict_food(img)
 
     return {"food": label, "confidence": confidence*100}

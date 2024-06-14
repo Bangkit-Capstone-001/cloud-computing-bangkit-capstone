@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 import requests
 from tqdm import tqdm
+from tensorflow.keras.preprocessing import image
 
 # Define the URL to the model
 # model_url = 'https://storage.googleapis.com/fitfirst-model-bucket/food_detection_model.keras'
@@ -77,13 +78,12 @@ FOOD_PREDICTION_CLASSES = [
 ]
 FOOD_LABELS = {index: name for index, name in FOOD_PREDICTION_CLASSES}
 
-def preprocess_image(image_bytes: bytes):
+def preprocess_image(img):
     """ Preprocess image bytes to be used as model input."""
-    image_tensor = tf.io.decode_image(image_bytes)
-    reshaped_image = tf.image.resize(image_tensor, [IMAGE_WIDTH, IMAGE_HEIGHT])
-    normalized = tf.cast(reshaped_image, tf.float32) / 255.0
-    image = tf.expand_dims(normalized, axis=0)
-    return image
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array /= 255.0
+    return img_array
 
 def predict_food(image_bytes: bytes) -> tuple[str, float]:
     """ 

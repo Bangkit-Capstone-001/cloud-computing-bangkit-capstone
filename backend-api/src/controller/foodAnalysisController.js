@@ -227,8 +227,6 @@ export async function getFoodByPicture(request, h) {
 		}
 
 		const result = await response.json();
-		const foods = await getFoodByNameService(result.food);
-
 		if (!result.food || result.confidence < 85) {
 			return h
 				.response({
@@ -237,6 +235,8 @@ export async function getFoodByPicture(request, h) {
 				})
 				.code(400);
 		}
+
+		const foods = await getFoodByNameService(result.food);
 
 		return h
 			.response({

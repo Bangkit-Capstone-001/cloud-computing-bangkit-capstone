@@ -241,7 +241,7 @@ export async function getFoodByPicture(request, h) {
 		return h
 			.response({
 				status: 200,
-				message: `Predicted ${result.food} with confidence score of ${result.confidence}`,
+				message: `Your image is predicted as ${result.food}`,
 				data: foods,
 			})
 			.code(200);

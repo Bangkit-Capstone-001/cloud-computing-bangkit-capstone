@@ -26,4 +26,6 @@ async def predict(image: UploadFile = File(...)):
 
     [label, confidence] = predict_food(img)
 
+    if confidence < 0.85: # Threshold confidence score 85%
+        return {"food": None, "confidence": confidence*100}
     return {"food": label, "confidence": confidence*100}

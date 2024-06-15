@@ -229,6 +229,15 @@ export async function getFoodByPicture(request, h) {
 		const result = await response.json();
 		const foods = await getFoodByNameService(result.food);
 
+		if (!result.food || result.confidence < 85) {
+			return h
+				.response({
+					status: 400,
+					message: 'Image not recognized as food, please try again with another image.',
+				})
+				.code(400);
+		}
+
 		return h
 			.response({
 				status: 200,

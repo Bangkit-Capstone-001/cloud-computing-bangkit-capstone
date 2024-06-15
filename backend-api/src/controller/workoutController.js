@@ -413,12 +413,12 @@ export async function getWorkoutRecommendations(request, h) {
     }
 
     const responseData = await response.json();
-    const recommendations = await fetchWorkoutsByName(responseData);
+    const recommendations = await fetchWorkoutsByName(responseData, option);
 
     return h
       .response({
         status: 200,
-        message: `Retrieved ${responseData.length} recommendation of ${target} Body workouts with option ${option}`,
+        message: `Retrieved ${recommendations.length} recommendation of ${target} Body workouts with option ${option}`,
         data: recommendations,
       })
       .code(200);

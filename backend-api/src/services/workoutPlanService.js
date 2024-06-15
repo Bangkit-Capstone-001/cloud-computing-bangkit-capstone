@@ -192,7 +192,7 @@ async function resolveWorkouts(workoutRefs) {
   return resolvedWorkouts;
 }
 
-export async function fetchWorkoutsByName(workoutNames) {
+export async function fetchWorkoutsByName(workoutNames, option) {
   try {
     const workoutsRefs = [];
 
@@ -200,7 +200,8 @@ export async function fetchWorkoutsByName(workoutNames) {
       workoutNames.map(async (workoutName) => {
         const workoutQuery = query(
           collection(db, "Workouts"),
-          where("exercise_name", "==", workoutName)
+          where("exercise_name", "==", workoutName),
+          where("option", "==", option)
         );
         const workoutsSnapshot = await getDocs(workoutQuery);
 

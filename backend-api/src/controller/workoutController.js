@@ -20,6 +20,7 @@ import {
   updateUserWorkoutPlanService,
   fetchWorkoutsByGroupAndOptionService,
   getWorkoutPlanByTargetAndOption,
+  fetchWorkoutsByName,
 } from "../services/workoutPlanService.js";
 import config from "../config/config.js";
 
@@ -412,12 +413,13 @@ export async function getWorkoutRecommendations(request, h) {
     }
 
     const responseData = await response.json();
+    const recommendations = await fetchWorkoutsByName(responseData);
 
     return h
       .response({
         status: 200,
         message: `Retrieved ${responseData.length} recommendation of ${target} Body workouts with option ${option}`,
-        data: responseData,
+        data: recommendations,
       })
       .code(200);
   } catch (error) {

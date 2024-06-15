@@ -110,17 +110,21 @@ export async function deleteUserWorkoutPlanService(userRef, workoutPlanId) {
 }
 
 export async function fetchWorkoutsByGroupAndOptionService(bodyGroup, option) {
-  const workoutsQuery = query(
-    collection(db, "Workouts"),
-    where("body_group", "==", bodyGroup),
-    where("option", "==", option)
-  );
-  const workoutsSnapshot = await getDocs(workoutsQuery);
-  const workouts = [];
-  workoutsSnapshot.forEach((doc) => {
-    workouts.push({ id: doc.id, ...doc.data() });
-  });
-  return workouts;
+  try {
+    const workoutsQuery = query(
+      collection(db, "Workouts"),
+      where("body_group", "==", bodyGroup),
+      where("option", "==", option)
+    );
+    const workoutsSnapshot = await getDocs(workoutsQuery);
+    const workoutRefs = workoutsSnapshot.docs.map((doc) => doc.ref);
+    const resolvedWorkouts = await resolveWorkouts(workoutRefs);
+
+    return resolvedWorkouts;
+  } catch (error) {
+    console.error("Error fetching workouts by group and option:", error);
+    throw error;
+  }
 }
 
 export async function getWorkoutPlanByTargetAndOption(userRef, target, option) {
@@ -157,19 +161,60 @@ export async function getWorkoutPlanByTargetAndOption(userRef, target, option) {
 }
 
 async function resolveWorkouts(workoutRefs) {
-  const resolvedWorkouts = [];
+  const workoutDocs = await Promise.all(workoutRefs.map((ref) => getDoc(ref)));
 
-  for (const workoutRef of workoutRefs) {
-    const workoutDoc = await getDoc(workoutRef);
-    if (workoutDoc.exists()) {
-      resolvedWorkouts.push({ id: workoutDoc.id, ...workoutDoc.data() });
-    } else {
-      resolvedWorkouts.push({
-        id: workoutRef.id,
-        error: "Document does not exist",
-      });
-    }
-  }
+  const resolvedWorkouts = await Promise.all(
+    workoutDocs.map(async (workoutDoc) => {
+      if (workoutDoc.exists()) {
+        const workoutData = workoutDoc.data();
+
+        // Fetch exercise images in parallel
+        const exerciseImagesRef = collection(workoutDoc.ref, "exerciseImages");
+        const exerciseImagesSnapshot = await getDocs(exerciseImagesRef);
+        const exerciseImages = exerciseImagesSnapshot.docs.map(
+          (doc) => doc.data().url
+        );
+
+        return {
+          id: workoutDoc.id,
+          ...workoutData,
+          exerciseImages,
+        };
+      } else {
+        return {
+          id: workoutDoc.id,
+          error: "Document does not exist",
+        };
+      }
+    })
+  );
 
   return resolvedWorkouts;
+}
+
+export async function fetchWorkoutsByName(workoutNames) {
+  try {
+    const workoutsRefs = [];
+
+    await Promise.all(
+      workoutNames.map(async (workoutName) => {
+        const workoutQuery = query(
+          collection(db, "Workouts"),
+          where("exercise_name", "==", workoutName)
+        );
+        const workoutsSnapshot = await getDocs(workoutQuery);
+
+        if (!workoutsSnapshot.empty) {
+          const workoutRefs = workoutsSnapshot.docs.map((doc) => doc.ref);
+          workoutsRefs.push(...workoutRefs);
+        }
+      })
+    );
+
+    const resolvedWorkouts = await resolveWorkouts(workoutsRefs);
+    return resolvedWorkouts;
+  } catch (error) {
+    console.error("Error fetching workouts by name:", error);
+    throw error;
+  }
 }

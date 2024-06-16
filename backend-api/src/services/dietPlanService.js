@@ -2,11 +2,8 @@ import { db } from "../config/firebaseConfig.js";
 import {
   addDoc,
   collection,
-  doc,
-  getDoc,
   getDocs,
   query,
-  setDoc,
   updateDoc,
 } from "firebase/firestore";
 import { getFoodIntakeToday } from "./foodAnalysisService.js";

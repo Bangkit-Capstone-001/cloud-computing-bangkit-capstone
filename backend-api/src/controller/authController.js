@@ -2,7 +2,6 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut,
 } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { doc, setDoc } from "firebase/firestore";

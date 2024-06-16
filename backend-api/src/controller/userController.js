@@ -1,7 +1,7 @@
 import { getAuth, updateEmail, updatePassword } from "firebase/auth";
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { bmiCalculator } from "../services/trackerService.js";
 
 export async function getUserProfile(request, h) {
@@ -111,7 +111,7 @@ export async function updateUserProfile(request, h) {
     if (currentHeight) {
       const docRef = doc(db, "Users", uid);
       const docSnapshot = await getDoc(docRef);
-      const userData = docSnapshot.data(); //ini 
+      const userData = docSnapshot.data(); //ini
 
       const { bmi } = await bmiCalculator(
         currentHeight,

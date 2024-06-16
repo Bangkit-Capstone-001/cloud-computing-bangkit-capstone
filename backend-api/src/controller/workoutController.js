@@ -1,17 +1,7 @@
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
 import fetch from "node-fetch";
-import {
-  doc,
-  collection,
-  query,
-  where,
-  getDocs,
-  updateDoc,
-  setDoc,
-  addDoc,
-  getDoc,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import {
   createWorkoutPlanService,
   deleteUserWorkoutPlanService,

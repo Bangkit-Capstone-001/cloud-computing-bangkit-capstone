@@ -1,15 +1,6 @@
 import { firebaseApp } from "../config/firebaseConfig.js";
 import { db } from "../config/firebaseConfig.js";
-import {
-  doc,
-  collection,
-  query,
-  where,
-  getDocs,
-  updateDoc,
-  setDoc,
-  addDoc,
-} from "firebase/firestore";
+import { doc } from "firebase/firestore";
 
 import {
   addUserWeightService,

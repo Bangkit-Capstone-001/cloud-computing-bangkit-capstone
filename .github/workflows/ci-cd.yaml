@@ -38,8 +38,8 @@ jobs:
       - name: Create .env.yaml file
         run: |
           echo "HOST: \"${{ secrets.HOST }}\"" > .env.yaml
-          echo "ML_API_URL: \"${{ secrets.ML_API_URL }}\"" > .env.yaml
-          echo "FLASK_API_URL: \"${{ secrets.FLASK_API_URL }}\"" > .env.yaml
+          echo "ML_API_URL: \"${{ secrets.ML_API_URL }}\"" >> .env.yaml
+          echo "FLASK_API_URL: \"${{ secrets.FLASK_API_URL }}\"" >> .env.yaml
           echo "API_KEY: \"${{ secrets.API_KEY }}\"" >> .env.yaml
           echo "AUTH_DOMAIN: \"${{ secrets.AUTH_DOMAIN }}\"" >> .env.yaml
           echo "PROJECT_ID: \"${{ secrets.PROJECT_ID }}\"" >> .env.yaml

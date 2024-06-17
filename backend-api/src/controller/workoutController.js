@@ -155,7 +155,7 @@ export async function createWorkoutPlan(request, h) {
 				})
 				.code(404);
 		}
-		const { workoutIds, days, level, target, option } = request.payload;
+		let { workoutIds, days, level, target, option } = request.payload;
 
 		if (!workoutIds || !days) {
 			return h
@@ -164,6 +164,12 @@ export async function createWorkoutPlan(request, h) {
 					message: 'Workout IDs and days are required',
 				})
 				.code(400);
+		}
+		if (typeof days === 'string' || days instanceof String) {
+			// Kalo string langsung dijadiin array aja kang
+
+			days = days.split(',');
+			console.log(days);
 		}
 
 		if (!level || !target || !option) {
@@ -180,7 +186,7 @@ export async function createWorkoutPlan(request, h) {
 			level,
 			target,
 			option,
-			days,
+			days: days.map((d) => parseInt(d)),
 			workouts,
 		});
 
@@ -192,7 +198,7 @@ export async function createWorkoutPlan(request, h) {
 			})
 			.code(201);
 	} catch (error) {
-		console.log(error.message);
+		console.log(error);
 		return h
 			.response({
 				status: 500,

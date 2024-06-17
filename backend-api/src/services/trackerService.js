@@ -48,8 +48,24 @@ export async function addUserWeightService(userRef, weight, date, today) {
   const inputDate = new Date(date);
   const closestExistingDate = await getClosestDateToToday(today, allDates);
 
-  const inputDateDifference = Math.abs(today - inputDate);
-  const closestDateDifference = Math.abs(today - new Date(closestExistingDate));
+  const inputDateOnly = new Date(
+    inputDate.getFullYear(),
+    inputDate.getMonth(),
+    inputDate.getDate()
+  );
+  const closestDateOnly = new Date(
+    closestExistingDate.getFullYear(),
+    closestExistingDate.getMonth(),
+    closestExistingDate.getDate()
+  );
+  const todayDateOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
+  const inputDateDifference = Math.abs(todayDateOnly - inputDateOnly);
+  const closestDateDifference = Math.abs(todayDateOnly - closestDateOnly);
 
   if (inputDateDifference <= closestDateDifference) {
     const userSnapshot = await getDoc(userRef);
@@ -62,15 +78,26 @@ export async function addUserWeightService(userRef, weight, date, today) {
 }
 
 async function getClosestDateToToday(today, dates) {
+  const todayDateOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
   let closestDate = null;
   let minDifference = Infinity;
 
   dates.forEach((date) => {
     const input = new Date(date);
-    const differenceInTime = Math.abs(today - input);
+    const inputDateOnly = new Date(
+      input.getFullYear(),
+      input.getMonth(),
+      input.getDate()
+    );
+
+    const differenceInTime = Math.abs(todayDateOnly - inputDateOnly);
     if (differenceInTime < minDifference) {
       minDifference = differenceInTime;
-      closestDate = input;
+      closestDate = inputDateOnly;
     }
   });
 
@@ -82,6 +109,5 @@ export async function bmiCalculator(currentHeight, currentWeight) {
   const bmi = parseInt(currentWeight) / (heightInMeters * heightInMeters);
 
   const roundedBmi = Math.round(bmi * 100) / 100;
-  console.log(currentHeight, currentWeight, roundedBmi);
   return { bmi: roundedBmi };
 }

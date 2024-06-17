@@ -11,7 +11,20 @@ export async function addUserWeight(request, h) {
   try {
     const { weight, date } = request.payload;
     const { uid } = request.auth;
+
+    const inputDate = new Date(date);
     const today = new Date();
+
+    const inputDateOnly = new Date(
+      inputDate.getFullYear(),
+      inputDate.getMonth(),
+      inputDate.getDate()
+    );
+    const todayDateOnly = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
 
     if (!weight || !date) {
       return h
@@ -20,7 +33,7 @@ export async function addUserWeight(request, h) {
           message: "Please provide both weight and date",
         })
         .code(400);
-    } else if (new Date(date) > today) {
+    } else if (inputDateOnly > todayDateOnly) {
       return h
         .response({
           status: 400,

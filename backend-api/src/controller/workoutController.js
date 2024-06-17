@@ -294,7 +294,13 @@ export async function updateUserWorkoutPlan(request, h) {
 			updateData.workouts = workoutIds.map((id) => doc(db, 'Workouts', id));
 		}
 		if (days) {
-			updateData.days = days;
+			if (typeof days === 'string' || days instanceof String) {
+				// Kalo string langsung dijadiin array aja kang
+
+				days = days.split(',');
+				console.log(days);
+			}
+			updateData.days = days.map((d) => parseInt(d));
 		}
 
 		await updateUserWorkoutPlanService(userRef, planId, updateData);

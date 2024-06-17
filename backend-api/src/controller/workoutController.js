@@ -432,10 +432,12 @@ export async function changeWorkoutPlanCompleteStatus(request, h) {
 	} catch (error) {
 		console.log(error);
 		if (error.message === "Today's day is not in the workout plan days")
-			return h.response({
-				status: 400,
-				message: "Today's day is not in the workout plan days",
-			});
+			return h
+				.response({
+					status: 400,
+					message: "Today's day is not in the workout plan days",
+				})
+				.code(400);
 		return h
 			.response({
 				status: 500,

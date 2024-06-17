@@ -30,9 +30,16 @@ export async function getAllUserWorkoutPlanService(userRef) {
 			const workoutPlanData = docSnapshot.data();
 			const resolvedWorkouts = await resolveWorkouts(workoutPlanData.workouts);
 
+			const completed = await getThisWeekWorkoutPlanCompleteStatusService(
+				userRef,
+				docSnapshot.id,
+				workoutPlanData.days
+			);
+
 			workoutPlans.push({
 				id: docSnapshot.id,
 				days: workoutPlanData.days,
+				completed,
 				level: workoutPlanData.level,
 				option: workoutPlanData.option,
 				target: workoutPlanData.target,
@@ -59,9 +66,16 @@ export async function getUserWorkoutPlanByIdService(userRef, workoutPlanId) {
 		const workoutPlanData = workoutPlanDocSnapshot.data();
 		const resolvedWorkouts = await resolveWorkouts(workoutPlanData.workouts);
 
+		const completed = await getThisWeekWorkoutPlanCompleteStatusService(
+			userRef,
+			workoutPlanId,
+			workoutPlanData.days
+		);
+
 		const resolvedWorkoutPlan = {
 			id: workoutPlanDocSnapshot.id,
 			days: workoutPlanData.days,
+			completed,
 			level: workoutPlanData.level,
 			option: workoutPlanData.option,
 			target: workoutPlanData.target,
@@ -247,4 +261,35 @@ export async function changeWorkoutPlanCompleteStatusService(userRef, workoutPla
 		updated_at: new Date(),
 	});
 	return workoutCompleteStatusSnapshot.docs[0].ref;
+}
+
+async function getThisWeekWorkoutPlanCompleteStatusService(userRef, workoutPlanId, days) {
+	const workoutPlanRef = collection(userRef, 'WorkoutPlans');
+	const workoutPlanDocRef = doc(workoutPlanRef, workoutPlanId);
+	const workoutCompleteStatusRef = collection(workoutPlanDocRef, 'WorkoutCompleteStatus');
+
+	const now = new Date();
+	const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+	const endOfWeek = new Date(now.setDate(startOfWeek.getDate() + 6));
+
+	const workoutCompleteStatusQuery = query(
+		workoutCompleteStatusRef,
+		where('updated_at', '>=', startOfWeek),
+		where('updated_at', '<=', endOfWeek)
+	);
+	const workoutCompleteStatusSnapshot = await getDocs(workoutCompleteStatusQuery);
+
+	const workoutCompleteStatus = workoutCompleteStatusSnapshot.docs.map((doc) => doc.data());
+	const completed = [];
+	days.forEach((day) => {
+		const status = workoutCompleteStatus.find((status) => {
+			return new Date((status.updated_at.seconds + 3600 * 7) * 1000).getDay() === day;
+		});
+		if (status) {
+			completed.push(status.complete);
+		} else {
+			completed.push(false);
+		}
+	});
+	return completed;
 }

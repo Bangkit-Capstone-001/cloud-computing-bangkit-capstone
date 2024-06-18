@@ -22,6 +22,8 @@ export async function getAllUserWeightHistoriesService(userRef) {
     weightHistoryData.push(doc.data());
   }
 
+  weightHistoryData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
   return weightHistoryData;
 }
 

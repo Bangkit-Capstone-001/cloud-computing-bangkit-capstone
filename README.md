@@ -27,7 +27,7 @@ FitFirst Backend runs with:
 
 ## Configuration
 
-.env
+To configure the FitFirst backend, you need to set up the `.env` file with the following variables:
 
 - Firebase API Key
   (You can get the key from Firebase Project Settings)
@@ -57,6 +57,15 @@ FitFirst Backend runs with:
   AUTH_PROVIDER_X509_CERT_URL="your-auth-provider-cert-url"
   CLIENT_X509_CERT_URL="your-client-cert-url"
   UNIVERSE_DOMAIN="your-universe-domain"
+  ```
+
+- Additional Configuration
+  Additional port and host. For `ML_API_URL` and `FLASK_API_URL`, you can ask the developer for the URL.
+  ```
+  PORT=3000
+  HOST=localhost
+  ML_API_URL="your-ml-api-url"
+  FLASK_API_URL="your-flask-api-url"
   ```
 
 ## API Documentation
@@ -91,41 +100,32 @@ npm install
 
 3. Set up environment variables:
 
-- Create a `.env` file in the root of the project and add the following variables with the corresponding values from your Firebase project settings:
+Create a `.env` file in the root of the project and add the following variables with the corresponding values from the configuration before:
 
-  ```
-  API_KEY="your-api-key"
-  AUTH_DOMAIN="your-auth-domain"
-  PROJECT_ID="your-project-id"
-  STORAGE_BUCKET="your-storage-bucket"
-  MESSAGING_SENDER_ID="your-messaging-sender-id"
-  APP_ID="your-app-id"
-  MEASUREMENT_ID="your-measurement-id"
-  ```
-
-- Add the Firebase Admin SDK credentials directly to the `.env `file:
-
-  ```
-  TYPE="your-type"
-  PROJECT_ID="your-project-id"
-  PRIVATE_KEY_ID="your-private-key-id"
-  PRIVATE_KEY="your-private-key"
-  CLIENT_EMAIL="your-client-email"
-  CLIENT_ID="your-client-id"
-  AUTH_URI="your-auth-uri"
-  TOKEN_URI="your-token-uri"
-  AUTH_PROVIDER_X509_CERT_URL="your-auth-provider-cert-url"
-  CLIENT_X509_CERT_URL="your-client-cert-url"
-  UNIVERSE_DOMAIN="your-universe-domain"
-  ```
-
-- Add additional environment variables:
-  ```
-  PORT=3000
-  HOST=localhost
-  ML_API_URL="your-ml-api-url"
-  FLASK_API_URL="your-flask-api-url"
-  ```
+```
+PORT=3000
+HOST=localhost
+ML_API_URL="your-ml-api-url"
+FLASK_API_URL="your-flask-api-url"
+API_KEY="your-api-key"
+AUTH_DOMAIN="your-auth-domain"
+PROJECT_ID="your-project-id"
+STORAGE_BUCKET="your-storage-bucket"
+MESSAGING_SENDER_ID="your-messaging-sender-id"
+APP_ID="your-app-id"
+MEASUREMENT_ID="your-measurement-id"
+TYPE="your-type"
+PROJECT_ID="your-project-id"
+PRIVATE_KEY_ID="your-private-key-id"
+PRIVATE_KEY="your-private-key"
+CLIENT_EMAIL="your-client-email"
+CLIENT_ID="your-client-id"
+AUTH_URI="your-auth-uri"
+TOKEN_URI="your-token-uri"
+AUTH_PROVIDER_X509_CERT_URL="your-auth-provider-cert-url"
+CLIENT_X509_CERT_URL="your-client-cert-url"
+UNIVERSE_DOMAIN="your-universe-domain"
+```
 
 4. Create `.env.yaml` for deployment:
    Create a .env.yaml file in the root of the project, copying all variables from .env but using YAML format:
